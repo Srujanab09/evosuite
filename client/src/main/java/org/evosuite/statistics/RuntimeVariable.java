@@ -147,6 +147,11 @@ public enum RuntimeVariable {
     IBranchInitialGoalsInTargetClass,
     IBranchGoalsTimeline,
     IBranchCoverageBitString,
+    /** Mcc Coverage Criteria */
+    MccCoverage,
+    MccFitnessTimeline,
+    MccCoverageTimeline,
+    MccCoverageBitString,
 	/** The obtained method coverage (method calls anywhere in trace) */
 	MethodTraceCoverage,
     MethodTraceFitnessTimeline,

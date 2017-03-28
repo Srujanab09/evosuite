@@ -27,6 +27,7 @@ import org.evosuite.coverage.cbranch.CBranchSuiteFitness;
 import org.evosuite.coverage.exception.ExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.io.input.InputCoverageSuiteFitness;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
+import org.evosuite.coverage.mcc.MccCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodNoExceptionCoverageSuiteFitness;
 import org.evosuite.coverage.method.MethodTraceCoverageSuiteFitness;
@@ -119,6 +120,9 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
         sequenceOutputVariableFactories.put(RuntimeVariable.TotalExceptionsTimeline.name(), new TotalExceptionsSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.IBranchGoalsTimeline.name(), new IBranchGoalsSequenceOutputVariableFactory());
 
+        sequenceOutputVariableFactories.put(RuntimeVariable.MccCoverageTimeline.name(), new MccCoverageSequenceOutputVariableFactory());
+        sequenceOutputVariableFactories.put(RuntimeVariable.MccFitnessTimeline.name(), new MccFitnessSequenceOutputVariableFactory());
+        
 		sequenceOutputVariableFactories.put(RuntimeVariable.BranchCoverageTimeline.name(), new BranchCoverageSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyBranchFitnessTimeline.name(), new OnlyBranchFitnessSequenceOutputVariableFactory());
         sequenceOutputVariableFactories.put(RuntimeVariable.OnlyBranchCoverageTimeline.name(), new OnlyBranchCoverageSequenceOutputVariableFactory());
@@ -628,6 +632,30 @@ public class SearchStatistics implements Listener<ClientStateInformation>{
         }
     }
 
+    private static class MccFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public MccFitnessSequenceOutputVariableFactory() {
+            super(RuntimeVariable.MccFitnessTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getFitnessInstanceOf(OnlyBranchCoverageSuiteFitness.class);
+        }
+    }
+
+    private static class MccCoverageSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
+
+        public MccCoverageSequenceOutputVariableFactory() {
+            super(RuntimeVariable.MccCoverageTimeline);
+        }
+
+        @Override
+        public Double getValue(TestSuiteChromosome individual) {
+            return individual.getCoverageInstanceOf(MccCoverageSuiteFitness.class);
+        }
+    }
+    
     private static class OnlyBranchFitnessSequenceOutputVariableFactory extends SequenceOutputVariableFactory<Double> {
 
         public OnlyBranchFitnessSequenceOutputVariableFactory() {

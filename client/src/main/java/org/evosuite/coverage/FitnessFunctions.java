@@ -46,6 +46,8 @@ import org.evosuite.coverage.io.output.OutputCoverageSuiteFitness;
 import org.evosuite.coverage.line.LineCoverageFactory;
 import org.evosuite.coverage.line.LineCoverageSuiteFitness;
 import org.evosuite.coverage.line.OnlyLineCoverageSuiteFitness;
+import org.evosuite.coverage.mcc.MccCoverageFactory;
+import org.evosuite.coverage.mcc.MccCoverageSuiteFitness;
 import org.evosuite.coverage.method.*;
 import org.evosuite.coverage.mutation.*;
 import org.evosuite.coverage.readability.ReadabilitySuiteFitness;
@@ -91,6 +93,8 @@ public class FitnessFunctions {
 			return new DefUseCoverageSuiteFitness();
 		case BRANCH:
 			return new BranchCoverageSuiteFitness();
+		case MCC:
+			return new MccCoverageSuiteFitness();
 		case CBRANCH:
 			return new CBranchSuiteFitness();
 		case IBRANCH:
@@ -157,6 +161,8 @@ public class FitnessFunctions {
 			return new DefUseCoverageFactory();
 		case BRANCH:
 			return new BranchCoverageFactory();
+		case MCC:
+			return new MccCoverageFactory();
 		case CBRANCH:
 			return new CBranchFitnessFactory();
 		case IBRANCH:

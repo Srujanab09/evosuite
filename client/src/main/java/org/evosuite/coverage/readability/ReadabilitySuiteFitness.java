@@ -1,5 +1,4 @@
 /**
-             THIS is a change made for TESTING...
  * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
  * contributors
  *
