@@ -99,6 +99,9 @@ public class BytecodeInstructionPool {
 		int lastLineNumber = -1;
 		int bytecodeOffset = 0;
 
+		System.out.println("*******************************************");
+		System.out.println("Inspecting Bytecode class name and Method names : " + className +" "+ methodName);
+		System.out.println("********************************************");
 		for (int instructionId = 0; instructionId < node.instructions.size(); instructionId++) {
 			AbstractInsnNode instructionNode = node.instructions.get(instructionId);
 
@@ -108,6 +111,7 @@ public class BytecodeInstructionPool {
 			                                                                                       instructionId,
 			                                                                                       bytecodeOffset,
 			                                                                                       instructionNode);
+		//	System.out.println(instruction);
 
 			if (instruction.isLineNumber())
 				lastLineNumber = instruction.getLineNumber();
@@ -121,7 +125,8 @@ public class BytecodeInstructionPool {
 				bytecodeOffset++;
 			}
 
-			registerInstruction(instruction);
+	 	registerInstruction(instruction);
+	 	printLabels(instruction);
 
 		}
 
@@ -269,9 +274,62 @@ public class BytecodeInstructionPool {
 		}
 		
 		if (instruction.isActualBranch()) {
+	//	System.out.println("===============>> Indentified Branch Instruction" + instruction);
 			BranchPool.getInstance(classLoader).registerAsBranch(instruction);
 		}
 	}
+	
+	/*
+	 *  by Srujana  
+	 *  This methos is used to print all the labesl that apper in bytecode
+	 */
+	void printLabels(BytecodeInstruction instruction)
+	{
+		String className = instruction.getClassName();
+		String methodName = instruction.getMethodName();
+	//	System.out.println("Printing all instructions "+instruction);
+		
+	//	System.out.println("Printing class name from printLables methods: "+ className);
+	//	System.out.println("Printing methodname name from printLables methods :"+ methodName);
+		
+		
+		List<BytecodeInstruction> instructions = instructionMap.get(className).get(methodName);
+		
+		if(instructions.size() > 1) 
+		{	
+			BytecodeInstruction previous = instructions.get(instructions.size() - 2);
+				if(previous.isLabel()) 
+				{
+					LabelNode ln = (LabelNode)previous.asmNode;
+					
+					
+					System.out.println("Print the label information from bytecode "+ ln.getLabel());
+				//	System.out.println("Printings bytecode offset value : "+instruction.bytecodeOffset);
+
+				}
+				
+		}
+		
+		if(instruction.isActualBranch()){
+			System.out.println("===============>> Indentified Branch Instruction" +instruction);
+			
+			System.out.println("Printing asm node string "+instruction.getASMNodeString());
+	//		System.out.println("Instruction type :" + instruction.asmNode.getType());
+	//		System.out.println("HashCode vale" + instruction.asmNode.hashCode());
+	//		System.out.println("opcode value" + instruction.asmNode.getOpcode());
+			System.out.println(" Line nUmber : " + instruction.getLineNumber());		
+		}
+			
+		if(instruction.isBranchLabel()){
+			System.out.println("***** Printing Branch label info: "+instruction);
+		}
+	/*	
+		if(instruction.isJump()){
+			System.out.println("================>>Printing Jump Instruction :" + instruction);
+		}
+	*/
+		
+		}
 
 	// retrieve data from the pool
 
