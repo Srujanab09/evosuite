@@ -90,7 +90,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 
 		this.instructionId = instructionId;
 		this.bytecodeOffset = bytecodeOffset;
-		this.asmNode = asmNode;
+		this.setAsmNode(asmNode);
 
 		this.classLoader = classLoader;
 
@@ -107,7 +107,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 	public BytecodeInstruction(BytecodeInstruction wrap) {
 
 		this(wrap.classLoader, wrap.className, wrap.methodName, wrap.instructionId,
-		        wrap.bytecodeOffset, wrap.asmNode, wrap.lineNumber, wrap.basicBlock);
+		        wrap.bytecodeOffset, wrap.getAsmNode(), wrap.lineNumber, wrap.basicBlock);
 		this.frame = wrap.frame;
 	}
 
@@ -708,7 +708,7 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 						+ getInstructionType();
 			}
 			return "UNKNOWN Branch I" + instructionId + " "
-					+ getInstructionType() +", jump to "+((JumpInsnNode)asmNode).label.getLabel();
+					+ getInstructionType() +", jump to "+((JumpInsnNode)getAsmNode()).label.getLabel();
 
 			// + " - " + ((JumpInsnNode) asmNode).label.getLabel();
 		}
@@ -735,63 +735,63 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 				stack += frame.getStack(i) + ",";
 			}
 
-		if (asmNode instanceof LabelNode) {
-			return "LABEL " + ((LabelNode) asmNode).getLabel().toString();
-		} else if (asmNode instanceof FieldInsnNode)
-			return "Field" + " " + ((FieldInsnNode) asmNode).owner + "."
-					+ ((FieldInsnNode) asmNode).name + " Type=" + type
+		if (getAsmNode() instanceof LabelNode) {
+			return "LABEL " + ((LabelNode) getAsmNode()).getLabel().toString();
+		} else if (getAsmNode() instanceof FieldInsnNode)
+			return "Field" + " " + ((FieldInsnNode) getAsmNode()).owner + "."
+					+ ((FieldInsnNode) getAsmNode()).name + " Type=" + type
 					+ ", Opcode=" + opcode;
-		else if (asmNode instanceof FrameNode)
-			return "Frame" + " " + asmNode.getOpcode() + " Type=" + type
+		else if (getAsmNode() instanceof FrameNode)
+			return "Frame" + " " + getAsmNode().getOpcode() + " Type=" + type
 					+ ", Opcode=" + opcode;
-		else if (asmNode instanceof IincInsnNode)
-			return "IINC " + ((IincInsnNode) asmNode).var + " Type=" + type
+		else if (getAsmNode() instanceof IincInsnNode)
+			return "IINC " + ((IincInsnNode) getAsmNode()).var + " Type=" + type
 					+ ", Opcode=" + opcode;
-		else if (asmNode instanceof InsnNode)
+		else if (getAsmNode() instanceof InsnNode)
 			return "" + opcode;
-		else if (asmNode instanceof IntInsnNode)
-			return "INT " + ((IntInsnNode) asmNode).operand + " Type=" + type
+		else if (getAsmNode() instanceof IntInsnNode)
+			return "INT " + ((IntInsnNode) getAsmNode()).operand + " Type=" + type
 					+ ", Opcode=" + opcode;
-		else if (asmNode instanceof MethodInsnNode)
-			return opcode + " " + ((MethodInsnNode) asmNode).owner + "." + ((MethodInsnNode) asmNode).name + ((MethodInsnNode) asmNode).desc;
-		else if (asmNode instanceof JumpInsnNode)
-			return "JUMP " + ((JumpInsnNode) asmNode).label.getLabel()
+		else if (getAsmNode() instanceof MethodInsnNode)
+			return opcode + " " + ((MethodInsnNode) getAsmNode()).owner + "." + ((MethodInsnNode) getAsmNode()).name + ((MethodInsnNode) getAsmNode()).desc;
+		else if (getAsmNode() instanceof JumpInsnNode)
+			return "JUMP " + ((JumpInsnNode) getAsmNode()).label.getLabel()
 					+ " Type=" + type + ", Opcode=" + opcode + ", Stack: "
 					+ stack + " - Line: " + lineNumber;
-		else if (asmNode instanceof LdcInsnNode)
-			return "LDC " + ((LdcInsnNode) asmNode).cst + " Type=" + type; // +
+		else if (getAsmNode() instanceof LdcInsnNode)
+			return "LDC " + ((LdcInsnNode) getAsmNode()).cst + " Type=" + type; // +
 		// ", Opcode=";
 		// + opcode; // cst starts with mutationid if
 		// this is location of mutation
-		else if (asmNode instanceof LineNumberNode)
-			return "LINE " + " " + ((LineNumberNode) asmNode).line;
-		else if (asmNode instanceof LookupSwitchInsnNode)
-			return "LookupSwitchInsnNode" + " " + asmNode.getOpcode()
+		else if (getAsmNode() instanceof LineNumberNode)
+			return "LINE " + " " + ((LineNumberNode) getAsmNode()).line;
+		else if (getAsmNode() instanceof LookupSwitchInsnNode)
+			return "LookupSwitchInsnNode" + " " + getAsmNode().getOpcode()
 					+ " Type=" + type + ", Opcode=" + opcode;
-		else if (asmNode instanceof MultiANewArrayInsnNode)
-			return "MULTIANEWARRAY " + " " + asmNode.getOpcode() + " Type="
+		else if (getAsmNode() instanceof MultiANewArrayInsnNode)
+			return "MULTIANEWARRAY " + " " + getAsmNode().getOpcode() + " Type="
 					+ type + ", Opcode=" + opcode;
-		else if (asmNode instanceof TableSwitchInsnNode)
-			return "TableSwitchInsnNode" + " " + asmNode.getOpcode() + " Type="
+		else if (getAsmNode() instanceof TableSwitchInsnNode)
+			return "TableSwitchInsnNode" + " " + getAsmNode().getOpcode() + " Type="
 					+ type + ", Opcode=" + opcode;
-		else if (asmNode instanceof TypeInsnNode) {
-			switch(asmNode.getOpcode()) {
+		else if (getAsmNode() instanceof TypeInsnNode) {
+			switch(getAsmNode().getOpcode()) {
 			case Opcodes.NEW:
-				return "NEW " + ((TypeInsnNode) asmNode).desc;
+				return "NEW " + ((TypeInsnNode) getAsmNode()).desc;
 			case Opcodes.ANEWARRAY:
-				return "ANEWARRAY " + ((TypeInsnNode) asmNode).desc;
+				return "ANEWARRAY " + ((TypeInsnNode) getAsmNode()).desc;
 			case Opcodes.CHECKCAST:
-				return "CHECKCAST " + ((TypeInsnNode) asmNode).desc;
+				return "CHECKCAST " + ((TypeInsnNode) getAsmNode()).desc;
 			case Opcodes.INSTANCEOF:
-				return "INSTANCEOF " + ((TypeInsnNode) asmNode).desc;
+				return "INSTANCEOF " + ((TypeInsnNode) getAsmNode()).desc;
 			default:
 				return "Unknown node" + " Type=" + type + ", Opcode=" + opcode;
 			}
 		}
 		// return "TYPE " + " " + node.getOpcode() + " Type=" + type
 		// + ", Opcode=" + opcode;
-		else if (asmNode instanceof VarInsnNode)
-			return opcode + " " + ((VarInsnNode) asmNode).var;
+		else if (getAsmNode() instanceof VarInsnNode)
+			return opcode + " " + ((VarInsnNode) getAsmNode()).var;
 		else
 			return "Unknown node" + " Type=" + type + ", Opcode=" + opcode;
 	}
@@ -980,8 +980,8 @@ public class BytecodeInstruction extends ASMWrapper implements Serializable,
 				//is static, check if the name of the class that contain the static field is equals to the current class name
 				//if is equals, return true, otherwise we are in a case where we are calling a field over an external static class
 				//e.g. System.out
-				if (srcInstruction.asmNode instanceof FieldInsnNode) {
-					String classNameField = ((FieldInsnNode) srcInstruction.asmNode).owner;
+				if (srcInstruction.getAsmNode() instanceof FieldInsnNode) {
+					String classNameField = ((FieldInsnNode) srcInstruction.getAsmNode()).owner;
 					classNameField = classNameField.replace('/', '.');
 					if (classNameField.equals(className)) {
 						return true;

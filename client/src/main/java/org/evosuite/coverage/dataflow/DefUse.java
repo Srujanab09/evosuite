@@ -276,7 +276,7 @@ public class DefUse extends BytecodeInstruction {
 		if (isInStaticMethod)
 			return false;
 
-		return asmNode.getOpcode() == Opcodes.ALOAD && getLocalVariableSlot() == 0;
+		return getAsmNode().getOpcode() == Opcodes.ALOAD && getLocalVariableSlot() == 0;
 	}
 
 	/* (non-Javadoc)

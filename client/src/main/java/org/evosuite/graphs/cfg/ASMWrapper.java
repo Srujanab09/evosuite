@@ -19,6 +19,7 @@
  */
 package org.evosuite.graphs.cfg;
 
+import org.objectweb.asm.Label;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.Type;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -67,7 +68,7 @@ import org.objectweb.asm.util.Printer;
 public abstract class ASMWrapper {
 
 	// from ASM library
-	protected AbstractInsnNode asmNode;
+	private AbstractInsnNode asmNode;
 	protected CFGFrame frame;
 
 	/**
@@ -78,7 +79,7 @@ public abstract class ASMWrapper {
 	 * @return a {@link org.objectweb.asm.tree.AbstractInsnNode} object.
 	 */
 	public AbstractInsnNode getASMNode() {
-		return asmNode;
+		return getAsmNode();
 	}
 
 	/**
@@ -90,8 +91,8 @@ public abstract class ASMWrapper {
 	 */
 	public String getInstructionType() {
 
-		if (asmNode.getOpcode() >= 0 && asmNode.getOpcode() < Printer.OPCODES.length)
-			return Printer.OPCODES[asmNode.getOpcode()];
+		if (getAsmNode().getOpcode() >= 0 && getAsmNode().getOpcode() < Printer.OPCODES.length)
+			return Printer.OPCODES[getAsmNode().getOpcode()];
 
 		if (isLineNumber())
 			return "LINE " + this.getLineNumber();
@@ -102,7 +103,7 @@ public abstract class ASMWrapper {
 	public String getMethodCallDescriptor() {
 		if (!isMethodCall())
 			return null;
-		MethodInsnNode meth = (MethodInsnNode) asmNode;
+		MethodInsnNode meth = (MethodInsnNode) getAsmNode();
 		return meth.desc;
 	}
 
@@ -116,8 +117,8 @@ public abstract class ASMWrapper {
 	public String getType() {
 		// TODO explain
 		String type = "";
-		if (asmNode.getType() >= 0 && asmNode.getType() < Printer.TYPES.length)
-			type = Printer.TYPES[asmNode.getType()];
+		if (getAsmNode().getType() >= 0 && getAsmNode().getType() < Printer.TYPES.length)
+			type = Printer.TYPES[getAsmNode().getType()];
 
 		return type;
 	}
@@ -196,7 +197,7 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isReturn() {
-		switch (asmNode.getOpcode()) {
+		switch (getAsmNode().getOpcode()) {
 		case Opcodes.RETURN:
 		case Opcodes.ARETURN:
 		case Opcodes.IRETURN:
@@ -217,7 +218,7 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isThrow() {
-		if (asmNode.getOpcode() == Opcodes.ATHROW) {
+		if (getAsmNode().getOpcode() == Opcodes.ATHROW) {
 			// TODO: Need to check if this is a caught exception?
 			return true;
 		}
@@ -232,7 +233,7 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isTableSwitch() {
-		return (asmNode instanceof TableSwitchInsnNode);
+		return (getAsmNode() instanceof TableSwitchInsnNode);
 	}
 
 	/**
@@ -243,7 +244,7 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isLookupSwitch() {
-		return (asmNode instanceof LookupSwitchInsnNode);
+		return (getAsmNode() instanceof LookupSwitchInsnNode);
 	}
 
 	/**
@@ -254,12 +255,13 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isBranchLabel() {
-		if (asmNode instanceof LabelNode
-		        && ((LabelNode) asmNode).getLabel().info instanceof Integer) {
+		if (getAsmNode() instanceof LabelNode
+		        && ((LabelNode) getAsmNode()).getLabel().info instanceof Integer) {
 			return true;
 		}
 		return false;
 	}
+	
 
 	/**
 	 * <p>
@@ -269,7 +271,7 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isJump() {
-		return (asmNode instanceof JumpInsnNode);
+		return (getAsmNode() instanceof JumpInsnNode);
 	}
 
 	/**
@@ -281,8 +283,8 @@ public abstract class ASMWrapper {
 	 *         call.
 	 */
 	public boolean isInvokeStatic() {
-		if (asmNode instanceof MethodInsnNode) {
-			return (asmNode.getOpcode() == Opcodes.INVOKESTATIC);
+		if (getAsmNode() instanceof MethodInsnNode) {
+			return (getAsmNode().getOpcode() == Opcodes.INVOKESTATIC);
 		}
 		return false;
 	}
@@ -295,8 +297,8 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isGoto() {
-		if (asmNode instanceof JumpInsnNode) {
-			return (asmNode.getOpcode() == Opcodes.GOTO);
+		if (getAsmNode() instanceof JumpInsnNode) {
+			return (getAsmNode().getOpcode() == Opcodes.GOTO);
 		}
 		return false;
 	}
@@ -325,8 +327,8 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isIfNull() {
-		if (asmNode instanceof JumpInsnNode) {
-			return (asmNode.getOpcode() == Opcodes.IFNULL);
+		if (getAsmNode() instanceof JumpInsnNode) {
+			return (getAsmNode().getOpcode() == Opcodes.IFNULL);
 		}
 		return false;
 	}
@@ -339,7 +341,7 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isFrame() {
-		return asmNode instanceof FrameNode;
+		return getAsmNode() instanceof FrameNode;
 	}
 
 	/**
@@ -350,7 +352,7 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isMethodCall() {
-		return asmNode instanceof MethodInsnNode;
+		return getAsmNode() instanceof MethodInsnNode;
 	}
 
 	/**
@@ -362,7 +364,7 @@ public abstract class ASMWrapper {
 	public String getCalledMethod() {
 		if (!isMethodCall())
 			return null;
-		MethodInsnNode meth = (MethodInsnNode) asmNode;
+		MethodInsnNode meth = (MethodInsnNode) getAsmNode();
 		return meth.name + meth.desc;
 	}
 
@@ -375,7 +377,7 @@ public abstract class ASMWrapper {
 	public String getCalledMethodName() {
 		if (!isMethodCall())
 			return null;
-		MethodInsnNode meth = (MethodInsnNode) asmNode;
+		MethodInsnNode meth = (MethodInsnNode) getAsmNode();
 		return meth.name;
 	}
 
@@ -402,7 +404,7 @@ public abstract class ASMWrapper {
 	 */
 	public String getCalledMethodsClass() {
 		if (isMethodCall()) {
-			MethodInsnNode mn = (MethodInsnNode) asmNode;
+			MethodInsnNode mn = (MethodInsnNode) getAsmNode();
 			return mn.owner.replaceAll("/", "\\.");
 		}
 		return null;
@@ -416,7 +418,7 @@ public abstract class ASMWrapper {
 	public int getCalledMethodsArgumentCount() {
 		if (isMethodCall()) {
 			// int r = 0;
-			MethodInsnNode mn = (MethodInsnNode) asmNode;
+			MethodInsnNode mn = (MethodInsnNode) getAsmNode();
 			Type[] argTypes = Type.getArgumentTypes(mn.desc);
 
 			return argTypes.length;
@@ -436,7 +438,7 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isLoadConstant() {
-		return asmNode.getOpcode() == Opcodes.LDC;
+		return getAsmNode().getOpcode() == Opcodes.LDC;
 	}
 
 	/**
@@ -447,7 +449,7 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isConstant() {
-		switch (asmNode.getOpcode()) {
+		switch (getAsmNode().getOpcode()) {
 		case Opcodes.LDC:
 		case Opcodes.ICONST_0:
 		case Opcodes.ICONST_1:
@@ -544,8 +546,8 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isFieldDefinition() {
-		return asmNode.getOpcode() == Opcodes.PUTFIELD
-		        || asmNode.getOpcode() == Opcodes.PUTSTATIC || isFieldArrayDefinition()
+		return getAsmNode().getOpcode() == Opcodes.PUTFIELD
+		        || getAsmNode().getOpcode() == Opcodes.PUTSTATIC || isFieldArrayDefinition()
 		        || isFieldMethodCallDefinition();
 	}
 
@@ -557,8 +559,8 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isFieldNodeDefinition() {
-		return asmNode.getOpcode() == Opcodes.PUTFIELD
-		        || asmNode.getOpcode() == Opcodes.PUTSTATIC || isFieldArrayDefinition();
+		return getAsmNode().getOpcode() == Opcodes.PUTFIELD
+		        || getAsmNode().getOpcode() == Opcodes.PUTSTATIC || isFieldArrayDefinition();
 	}
 
 	/**
@@ -569,8 +571,8 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isFieldUse() {
-		return asmNode.getOpcode() == Opcodes.GETFIELD
-		        || asmNode.getOpcode() == Opcodes.GETSTATIC || isFieldMethodCallUse();
+		return getAsmNode().getOpcode() == Opcodes.GETFIELD
+		        || getAsmNode().getOpcode() == Opcodes.GETSTATIC || isFieldMethodCallUse();
 	}
 
 	/**
@@ -581,8 +583,8 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isFieldNodeUse() {
-		return asmNode.getOpcode() == Opcodes.GETFIELD
-		        || asmNode.getOpcode() == Opcodes.GETSTATIC;
+		return getAsmNode().getOpcode() == Opcodes.GETFIELD
+		        || getAsmNode().getOpcode() == Opcodes.GETSTATIC;
 	}
 
 	/**
@@ -593,8 +595,8 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isStaticDefUse() {
-		return asmNode.getOpcode() == Opcodes.PUTSTATIC
-		        || asmNode.getOpcode() == Opcodes.GETSTATIC || isStaticArrayUsage();
+		return getAsmNode().getOpcode() == Opcodes.PUTSTATIC
+		        || getAsmNode().getOpcode() == Opcodes.GETSTATIC || isStaticArrayUsage();
 	}
 
 	// retrieving information about variable names from ASM
@@ -635,7 +637,7 @@ public abstract class ASMWrapper {
 	 * @return a {@link java.lang.String} object.
 	 */
 	protected String getFieldSimpleName() {
-		FieldInsnNode fieldNode = (FieldInsnNode) asmNode;
+		FieldInsnNode fieldNode = (FieldInsnNode) getAsmNode();
 		return fieldNode.name;
 		// return fieldNode.name;
 	}
@@ -648,7 +650,7 @@ public abstract class ASMWrapper {
 	 * @return a {@link java.lang.String} object.
 	 */
 	protected String getFieldName() {
-		FieldInsnNode fieldNode = (FieldInsnNode) asmNode;
+		FieldInsnNode fieldNode = (FieldInsnNode) getAsmNode();
 		return fieldNode.owner + "." + fieldNode.name;
 		// return fieldNode.name;
 	}
@@ -661,7 +663,7 @@ public abstract class ASMWrapper {
 	 * @return a {@link java.lang.String} object.
 	 */
 	public String getFieldType() {
-		FieldInsnNode fieldNode = (FieldInsnNode) asmNode;
+		FieldInsnNode fieldNode = (FieldInsnNode) getAsmNode();
 		return fieldNode.desc;
 		// return fieldNode.name;
 	}
@@ -687,10 +689,10 @@ public abstract class ASMWrapper {
 	 * @return a int.
 	 */
 	public int getLocalVariableSlot() {
-		if (asmNode instanceof VarInsnNode)
-			return ((VarInsnNode) asmNode).var;
-		else if (asmNode instanceof IincInsnNode)
-			return ((IincInsnNode) asmNode).var;
+		if (getAsmNode() instanceof VarInsnNode)
+			return ((VarInsnNode) getAsmNode()).var;
+		else if (getAsmNode() instanceof IincInsnNode)
+			return ((IincInsnNode) getAsmNode()).var;
 		else
 			return -1;
 	}
@@ -703,12 +705,12 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isLocalVariableDefinition() {
-		return asmNode.getOpcode() == Opcodes.ISTORE
-		        || asmNode.getOpcode() == Opcodes.LSTORE
-		        || asmNode.getOpcode() == Opcodes.FSTORE
-		        || asmNode.getOpcode() == Opcodes.DSTORE
-		        || asmNode.getOpcode() == Opcodes.ASTORE
-		        || asmNode.getOpcode() == Opcodes.IINC || isLocalArrayDefinition();
+		return getAsmNode().getOpcode() == Opcodes.ISTORE
+		        || getAsmNode().getOpcode() == Opcodes.LSTORE
+		        || getAsmNode().getOpcode() == Opcodes.FSTORE
+		        || getAsmNode().getOpcode() == Opcodes.DSTORE
+		        || getAsmNode().getOpcode() == Opcodes.ASTORE
+		        || getAsmNode().getOpcode() == Opcodes.IINC || isLocalArrayDefinition();
 	}
 
 	/**
@@ -719,16 +721,16 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isLocalVariableUse() {
-		return asmNode.getOpcode() == Opcodes.ILOAD
-		        || asmNode.getOpcode() == Opcodes.LLOAD
-		        || asmNode.getOpcode() == Opcodes.FLOAD
-		        || asmNode.getOpcode() == Opcodes.DLOAD
-		        || asmNode.getOpcode() == Opcodes.IINC
-		        || (asmNode.getOpcode() == Opcodes.ALOAD && !loadsReferenceToThis());
+		return getAsmNode().getOpcode() == Opcodes.ILOAD
+		        || getAsmNode().getOpcode() == Opcodes.LLOAD
+		        || getAsmNode().getOpcode() == Opcodes.FLOAD
+		        || getAsmNode().getOpcode() == Opcodes.DLOAD
+		        || getAsmNode().getOpcode() == Opcodes.IINC
+		        || (getAsmNode().getOpcode() == Opcodes.ALOAD && !loadsReferenceToThis());
 	}
 
 	public boolean isIINC() {
-		return asmNode.getOpcode() == Opcodes.IINC;
+		return getAsmNode().getOpcode() == Opcodes.IINC;
 	}
 
 	/**
@@ -746,7 +748,7 @@ public abstract class ASMWrapper {
 			return false;
 		}
 		
-		return asmNode.getOpcode() == Opcodes.ALOAD && getLocalVariableSlot() == 0;
+		return getAsmNode().getOpcode() == Opcodes.ALOAD && getLocalVariableSlot() == 0;
 	}
 
 	public abstract RawControlFlowGraph getRawCFG();
@@ -787,19 +789,19 @@ public abstract class ASMWrapper {
 	}
 
 	public boolean isArrayStoreInstruction() {
-		return asmNode.getOpcode() == Opcodes.IASTORE
-		        || asmNode.getOpcode() == Opcodes.LASTORE
-		        || asmNode.getOpcode() == Opcodes.FASTORE
-		        || asmNode.getOpcode() == Opcodes.DASTORE
-		        || asmNode.getOpcode() == Opcodes.AASTORE;
+		return getAsmNode().getOpcode() == Opcodes.IASTORE
+		        || getAsmNode().getOpcode() == Opcodes.LASTORE
+		        || getAsmNode().getOpcode() == Opcodes.FASTORE
+		        || getAsmNode().getOpcode() == Opcodes.DASTORE
+		        || getAsmNode().getOpcode() == Opcodes.AASTORE;
 	}
 	
 	public boolean isArrayLoadInstruction() {
-		return asmNode.getOpcode() == Opcodes.IALOAD
-		        || asmNode.getOpcode() == Opcodes.LALOAD
-		        || asmNode.getOpcode() == Opcodes.FALOAD
-		        || asmNode.getOpcode() == Opcodes.DALOAD
-		        || asmNode.getOpcode() == Opcodes.AALOAD;
+		return getAsmNode().getOpcode() == Opcodes.IALOAD
+		        || getAsmNode().getOpcode() == Opcodes.LALOAD
+		        || getAsmNode().getOpcode() == Opcodes.FALOAD
+		        || getAsmNode().getOpcode() == Opcodes.DALOAD
+		        || getAsmNode().getOpcode() == Opcodes.AALOAD;
 	}
 
 	protected String getArrayVariableName() {
@@ -833,7 +835,7 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isInvokeSpecial() {
-		return asmNode.getOpcode() == Opcodes.INVOKESPECIAL;
+		return getAsmNode().getOpcode() == Opcodes.INVOKESPECIAL;
 	}
 
 	/**
@@ -846,7 +848,7 @@ public abstract class ASMWrapper {
 		if (!isInvokeSpecial())
 			return false;
 
-		MethodInsnNode invoke = (MethodInsnNode) asmNode;
+		MethodInsnNode invoke = (MethodInsnNode) getAsmNode();
 		// if (!invoke.owner.equals(className.replaceAll("\\.", "/")))
 		// return false;
 
@@ -865,7 +867,7 @@ public abstract class ASMWrapper {
 		if (!isInvokeSpecial())
 			return false;
 
-		MethodInsnNode invoke = (MethodInsnNode) asmNode;
+		MethodInsnNode invoke = (MethodInsnNode) getAsmNode();
 		if (!invoke.owner.equals(className.replaceAll("\\.", "/")))
 			return false;
 
@@ -883,7 +885,7 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isLineNumber() {
-		return (asmNode instanceof LineNumberNode);
+		return (getAsmNode() instanceof LineNumberNode);
 	}
 
 	/**
@@ -897,7 +899,7 @@ public abstract class ASMWrapper {
 		if (!isLineNumber())
 			return -1;
 
-		return ((LineNumberNode) asmNode).line;
+		return ((LineNumberNode) getAsmNode()).line;
 	}
 
 	/**
@@ -908,7 +910,7 @@ public abstract class ASMWrapper {
 	 * @return a boolean.
 	 */
 	public boolean isLabel() {
-		return asmNode instanceof LabelNode;
+		return getAsmNode() instanceof LabelNode;
 	}
 
 	// sanity checks
@@ -924,13 +926,21 @@ public abstract class ASMWrapper {
 	public boolean sanityCheckAbstractInsnNode(AbstractInsnNode node) {
 		if (node == null)
 			return false; //throw new IllegalArgumentException("null given");
-		if (!node.equals(this.asmNode))
+		if (!node.equals(this.getAsmNode()))
 			return false;
 		//
 		//	throw new IllegalStateException("sanity check failed for "
 		//			+ node.toString() + " on " + getMethodName() + toString());
 
 		return true;
+	}
+
+	public AbstractInsnNode getAsmNode() {
+		return asmNode;
+	}
+
+	public void setAsmNode(AbstractInsnNode asmNode) {
+		this.asmNode = asmNode;
 	}
 
 }

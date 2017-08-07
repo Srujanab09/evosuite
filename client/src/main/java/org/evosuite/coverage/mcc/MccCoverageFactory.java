@@ -41,6 +41,7 @@ public class MccCoverageFactory extends
 	 * @param limitToCUT
 	 * @return
 	 */
+
 	private List<MccCoverageTestFitness> computeCoverageGoals(boolean limitToCUT){
 		long start = System.currentTimeMillis();
 		List<MccCoverageTestFitness> goals = new ArrayList<MccCoverageTestFitness>();
@@ -75,7 +76,7 @@ public class MccCoverageFactory extends
 				}
 			}
 		}
-		System.out.println("------------ MCC Required Instructions ------------------");
+	//	System.out.println("------------ MCC Required Instructions ------------------");
 		/*for(String  str : mccInsts.values()) {
 			System.out.println(str);
 		}
