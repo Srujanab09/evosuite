@@ -26,7 +26,10 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
+import javax.transaction.Synchronization;
+
 import org.evosuite.coverage.branch.BranchPool;
+import org.evosuite.coverage.mcc.MccCoverageFactory;
 import org.evosuite.runtime.instrumentation.AnnotatedLabel;
 import org.objectweb.asm.Opcodes;
 import org.objectweb.asm.tree.AbstractInsnNode;
@@ -105,14 +108,38 @@ public class BytecodeInstructionPool {
 		for (int instructionId = 0; instructionId < node.instructions.size(); instructionId++) {
 			AbstractInsnNode instructionNode = node.instructions.get(instructionId);
 
+			
 			BytecodeInstruction instruction = BytecodeInstructionFactory.createBytecodeInstruction(classLoader,
 			                                                                                       className,
 			                                                                                       methodName,
 			                                                                                       instructionId,
 			                                                                                       bytecodeOffset,
 			                                                                                       instructionNode);
-		//	System.out.println(instruction);
-
+		
+			synchronized (instruction) {
+			
+				BytecodeInstruction t = instruction;
+				System.out.println(t);
+				
+		
+				if (t.isActualBranch() || t.isLabel()) {
+					System.out.println("Test : "+t.toString());
+					MccCoverageFactory.mccInstructions.add(t.toString());
+				}	
+			}
+			
+			
+		/*	if (instruction.isActualBranch() || instruction.isLabel()) {
+				System.out.println("checking for Mcc Instructions : " + instruction);
+				BranchPool.getInstance(classLoader).registerForMcc(instruction);
+				if(instruction.isLabel())
+					BranchPool.getInstance(classLoader).mccInstructions.put(instruction.toString(), 1);
+				if(instruction.isBranch())
+					BranchPool.getInstance(classLoader).mccInstructions.put(instruction.toString(), 2);
+			
+			}
+			*/
+		
 			if (instruction.isLineNumber())
 				lastLineNumber = instruction.getLineNumber();
 			else if (lastLineNumber != -1)
@@ -136,6 +163,8 @@ public class BytecodeInstructionPool {
 			        "expect instruction pool to return non-null non-empty list of instructions for a previously registered method "
 			                + methodName);
 
+		
+		
 		return r;
 	}
 
@@ -260,7 +289,7 @@ public class BytecodeInstructionPool {
 		if(instructions.size() > 1) {
 			BytecodeInstruction previous = instructions.get(instructions.size() - 2);
 			if(previous.isLabel()) {
-				LabelNode ln = (LabelNode)previous.asmNode;
+				LabelNode ln = (LabelNode)previous.getAsmNode();
 				if (ln.getLabel() instanceof AnnotatedLabel) {
 					AnnotatedLabel aLabel = (AnnotatedLabel) ln.getLabel();
 					if(aLabel.isStartTag()) {
@@ -277,6 +306,8 @@ public class BytecodeInstructionPool {
 	//	System.out.println("===============>> Indentified Branch Instruction" + instruction);
 			BranchPool.getInstance(classLoader).registerAsBranch(instruction);
 		}
+		
+		
 	}
 	
 	/*
@@ -300,7 +331,7 @@ public class BytecodeInstructionPool {
 			BytecodeInstruction previous = instructions.get(instructions.size() - 2);
 				if(previous.isLabel()) 
 				{
-					LabelNode ln = (LabelNode)previous.asmNode;
+					LabelNode ln = (LabelNode)previous.getAsmNode();
 					
 					
 					System.out.println("Print the label information from bytecode "+ ln.getLabel());
@@ -426,7 +457,7 @@ public class BytecodeInstructionPool {
 			return null;
 		}
 		for (BytecodeInstruction instruction : instructionMap.get(className).get(methodName)) {
-			if (instruction.asmNode == node)
+			if (instruction.getAsmNode() == node)
 				return instruction;
 		}
 

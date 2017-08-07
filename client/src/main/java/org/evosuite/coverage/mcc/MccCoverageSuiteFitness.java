@@ -288,7 +288,8 @@ public class MccCoverageSuiteFitness extends TestSuiteFitnessFunction {
 			handleBranchlessMethods(suite, result, callCount);
 			handlePredicateCount(suite, result, predicateCount);
 			handleTrueDistances(suite, result, trueDistance);
-			handleFalseDistances(suite, result, falseDistance);
+			handleTrueDistances(suite, result, trueDistance);
+		//	handleFalseDistances(suite, result, falseDistance);
 		}
 		return hasTimeoutOrTestException;
 	}
