@@ -19,6 +19,7 @@
  */
 package org.evosuite.graphs.cfg;
 
+
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -26,7 +27,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-import javax.transaction.Synchronization;
 
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mcc.MccCoverageFactory;
@@ -74,7 +74,7 @@ public class BytecodeInstructionPool {
 	private final List<MethodNode> knownMethodNodes = new ArrayList<MethodNode>();
 
 	// fill the pool
-
+	
 	/**
 	 * Called by each CFGGenerator for it's corresponding method.
 	 * 
@@ -96,14 +96,12 @@ public class BytecodeInstructionPool {
 	 */
 	public List<BytecodeInstruction> registerMethodNode(MethodNode node,
 	        String className, String methodName) {
+		String inst = null;
 		registerMethodNode(node);
 
 		int lastLineNumber = -1;
 		int bytecodeOffset = 0;
 
-//		System.out.println("*******************************************");
-//		System.out.println("Inspecting Bytecode class name and Method names : " + className +" "+ methodName);
-//		System.out.println("********************************************");
 		for (int instructionId = 0; instructionId < node.instructions.size(); instructionId++) {
 			AbstractInsnNode instructionNode = node.instructions.get(instructionId);
 
@@ -113,9 +111,17 @@ public class BytecodeInstructionPool {
 			                                                                                       instructionId,
 			                                                                                       bytecodeOffset,
 			                                                                                       instructionNode);
-		//	System.out.println(instruction);
-			MccCoverageFactory.storeInstrcutionForMCC(methodName, instruction);
 			
+	
+			boolean mccflag = false;
+			if(instruction.isBranch() || instruction.isLabel()) {
+			
+				mccflag = true;
+				inst = instruction.toString();
+			}
+			
+			
+
 			if (instruction.isLineNumber())
 				lastLineNumber = instruction.getLineNumber();
 			else if (lastLineNumber != -1)
@@ -128,8 +134,12 @@ public class BytecodeInstructionPool {
 				bytecodeOffset++;
 			}
 
-	 	registerInstruction(instruction);
-	 //	printLabels(instruction);
+
+			registerInstruction(instruction);
+			if(mccflag)
+				MccCoverageFactory.storeInstrcutionForMCC(methodName, instruction, inst, classLoader);
+			
+				//MccCoverageFactory.storeInstrcutionForMCC(methodName,instruction, instructionCopy, classLoader);
 
 		}
 
@@ -138,6 +148,7 @@ public class BytecodeInstructionPool {
 			throw new IllegalStateException(
 			        "expect instruction pool to return non-null non-empty list of instructions for a previously registered method "
 			                + methodName);
+		
 		MccCoverageFactory.processMccInstrcution();
 		return r;
 	}
@@ -277,9 +288,10 @@ public class BytecodeInstructionPool {
 		}
 		
 		if (instruction.isActualBranch()) {
-	//	System.out.println("===============>> Indentified Branch Instruction" + instruction);
 			BranchPool.getInstance(classLoader).registerAsBranch(instruction);
 		}
+		
+		
 	}
 	
 	/*
