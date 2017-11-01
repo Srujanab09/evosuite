@@ -1,6 +1,12 @@
 package org.evosuite.coverage.mcc;
 
+import org.evosuite.coverage.branch.Branch;
+
 public class MccBranchInfo {
+
+	private transient Branch branch;
+
+	
 	private String branchName;
 	private String labelForWhere;
 	private String labelForTrue;
@@ -29,5 +35,11 @@ public class MccBranchInfo {
 	}
 	public void setLabelForFalse(String labelForFalse) {
 		this.labelForFalse = labelForFalse;
+	}
+	public Branch getBranch() {
+		return branch;
+	}
+	public void setBranch(Branch branch) {
+		this.branch = branch;
 	}
 }

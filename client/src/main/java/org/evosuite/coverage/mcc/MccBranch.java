@@ -1,9 +1,14 @@
 package org.evosuite.coverage.mcc;
 
+import org.evosuite.coverage.branch.Branch;
+
 public class MccBranch {
+
+	private transient Branch branch;
 	private String branchName;
 	private String trueBranch = "NA";  // NA = Not Available
 	private String falseBranch = "NA"; // NA = Not Available
+	
 	
 	public String getBranchName() {
 		return branchName;
@@ -23,4 +28,12 @@ public class MccBranch {
 	public void setFalseBranch(String falseBranch) {
 		this.falseBranch = falseBranch;
 	}
+	public Branch getBranch() {
+		return branch;
+	}
+	public void setBranch(Branch branch) {
+		this.branch = branch;
+	}
+	
+	
 }
