@@ -30,7 +30,6 @@ import org.slf4j.LoggerFactory;
 
 import java.util.*;
 
-import javax.persistence.criteria.CriteriaBuilder.In;
 
 // TODO: root branches should not be special cases
 // every root branch should be a branch just
@@ -69,15 +68,6 @@ public class BranchPool {
 
 	// maps all known branch instructions to their branchId
 	private Map<BytecodeInstruction, Integer> registeredNormalBranches = new HashMap<BytecodeInstruction, Integer>();
-
-	// by srujana  : for -- 
-	//public Map<BytecodeInstruction, Integer> mccInstructionsTypeMap  = new HashMap<BytecodeInstruction, Integer>();
-	// maps all known switch instructions to a list containing all of their
-	// associated Branch objects
-	
-	//public Map<String, Integer>  mccInstructions = new HashMap<String, Integer>();
-	
-	//public ArrayList<String> mccInstructions = new ArrayList<>();
 	
 	private Map<BytecodeInstruction, List<Branch>> registeredSwitches = new HashMap<BytecodeInstruction, List<Branch>>();
 
@@ -138,65 +128,17 @@ public class BranchPool {
 
 	}
 	
-	/* 
-	 *  by srujana
-	 *  
-	public void registerForMcc(BytecodeInstruction instruction) {
- 		if (!(instruction.isActualBranch()))
-			throw new IllegalArgumentException("CFGVertex of a branch expected");
-		if (isKnownAsBranch(instruction))
-			return; 
-		if (!DependencyAnalysis.shouldInstrument(instruction.getClassName(),
-		                                         instruction.getMethodName())) {
-			return;
-		} 
-		
-		registerMccInstruction(instruction);
 
-	}
-	
-	private void registerMccInstruction(BytecodeInstruction v) {
-		if (isKnownAsBranch(v))
-			throw new IllegalStateException(
-			        "expect registerInstruction() to be called at most once for each instruction");
-
-		if(v.isLabel() || v.isBranch())
-		{
-			if(v.isLabel())
-				mccInstructionsTypeMap.put(v, 1);
-			else
-				mccInstructionsTypeMap.put(v, 2);	
-		}			
-		else
-			throw new IllegalArgumentException(
-			        "expect given instruction to be an actual branch or label");
-	}
-	 
- */
 	private void registerInstruction(BytecodeInstruction v) {
 		if (isKnownAsBranch(v))
 			throw new IllegalStateException(
 			        "expect registerInstruction() to be called at most once for each instruction");
 
-		if (v.isBranch())
+		if (v.isBranch()){
 			registerNormalBranchInstruction(v);
+		}
 		else if (v.isSwitch())
 			registerSwitchInstruction(v);
-
-	/*	
-	 * By srujana 
-	 * 
-	 * if(v.isLabel() || v.isBranch())
-		{
-			if(v.isLabel())
-				mccInstructionsTypeMap.put(v, 1);
-			else
-				mccInstructionsTypeMap.put(v, 2);	
-		} 
-		
-		*/
-			
-			
 		else
 			throw new IllegalArgumentException(
 			        "expect given instruction to be an actual branch");
@@ -382,6 +324,7 @@ public class BranchPool {
 	 * @return a boolean.
 	 */
 	public boolean isKnownAsBranch(BytecodeInstruction instruction) {
+	
 		return isKnownAsNormalBranchInstruction(instruction)
 		        || isKnownAsSwitchBranchInstruction(instruction);
 	}
