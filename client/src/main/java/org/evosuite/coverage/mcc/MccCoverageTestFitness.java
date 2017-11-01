@@ -39,7 +39,7 @@ public class MccCoverageTestFitness extends TestFitnessFunction {
 	private final Map<String, Map<String, List<BytecodeInstruction>>> instructionMap = new HashMap<String, Map<String, List<BytecodeInstruction>>>();
 
 	/** Target branch */
-	private final BranchCoverageGoal goal;
+	private final MccCoverageGoal goal;
 
 	/**
 	 * Constructor - fitness is specific to a branch
@@ -48,19 +48,11 @@ public class MccCoverageTestFitness extends TestFitnessFunction {
 	 *            a {@link org.evosuite.coverage.branch.BranchCoverageGoal}
 	 *            object.
 	 */
-/*	
-	public MccCoverageTestFitness(BranchCoverageGoal goal) throws IllegalArgumentException{
-		if(goal == null){
-			throw new IllegalArgumentException("goal cannot be null");
-		}
-		this.goal = goal;
-	}
-	
-*/	
+
 /*
  *  passing coverage goal as bytecode instruction
  */
-	public MccCoverageTestFitness(BranchCoverageGoal goal)  throws IllegalArgumentException{
+	public MccCoverageTestFitness(MccCoverageGoal goal)  throws IllegalArgumentException{
 		
 		
 		if(goal == null){
@@ -92,7 +84,7 @@ public class MccCoverageTestFitness extends TestFitnessFunction {
 		return goal.getValue();
 	}
 
-	public BranchCoverageGoal getBranchGoal() {
+	public MccCoverageGoal getMccGoal() {
 		return goal;
 	}
 
