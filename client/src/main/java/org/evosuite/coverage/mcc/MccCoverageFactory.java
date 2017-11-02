@@ -35,6 +35,9 @@ public class MccCoverageFactory extends
 	
 	public static HashMap<String, Branch> mccInstruction = new HashMap<String, Branch>();
 
+	// for testing
+	static HashMap<String, Branch> branchNameMap = new HashMap<String, Branch>();
+	
 	public static HashMap<String, ArrayList<MccBranchInfo>> mccBranchInfoMap = new HashMap<String, ArrayList<MccBranchInfo>>();
 	
 	public static HashMap<String, CopyOnWriteArrayList<CopyOnWriteArrayList<MccBranchPair>>> mccTestObligations = new HashMap<String, CopyOnWriteArrayList<CopyOnWriteArrayList<MccBranchPair>>>();
@@ -192,18 +195,6 @@ public class MccCoverageFactory extends
 	
 	public static void storeInstrcutionForMCC(String methodName, BytecodeInstruction instruction, String inst, ClassLoader classLoader) {
 		synchronized (instruction) {
-			
-//			Branch b = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchForInstruction(instruction);
-		//	System.out.println(">>>>>> -----------------"+TestGenerationContext.getInstance().getClassLoaderForSUT());
-		//	System.out.println(">>>>>> ------Size------"+ TestGenerationContext.getInstance().getClassLoaderForSUT().getLoadedClasses().size());
-		//	for(String s: TestGenerationContext.getInstance().getClassLoaderForSUT().getLoadedClasses()){
-		//		System.out.println("loaded classes: "+s);
-		//	}
-//			System.out.println(" >>>> Test output -------------------");
-//			System.out.println(b.getActualBranchId());
-//			System.out.println(b.getInstruction());
-			
-
 				if(MccCoverageFactory.mccInsts.containsKey(methodName)) {
 					MccCoverageFactory.mccInsts.get(methodName).add(inst);
 					if(BranchPool.getInstance(classLoader).isKnownAsBranch(instruction)){
@@ -557,10 +548,12 @@ public class MccCoverageFactory extends
 				String nextBranchName = getNextBranchName(pair, mccBranchList);
 				
 				if(nextBranchName != null ) {
+					if(branchNameMap.containsKey(nextBranchName)){
 					// then add true & false BPs to the obligationList.
-					
 					MccBranchPair falseBp = new MccBranchPair();
+
 					falseBp.setBranchName(nextBranchName);
+					falseBp.setBranch(branchNameMap.get(nextBranchName));
 					falseBp.setConditionStatus(0); // 0 == false
 					
 					CopyOnWriteArrayList<MccBranchPair> falseBranchPairList = new CopyOnWriteArrayList<MccBranchPair>();
@@ -570,10 +563,12 @@ public class MccCoverageFactory extends
 					
 					MccBranchPair trueBp = new MccBranchPair();
 					trueBp.setBranchName(nextBranchName);
+					trueBp.setBranch(branchNameMap.get(nextBranchName));
 					trueBp.setConditionStatus(1); // for true
 					obligation.add(trueBp);
 					
 					iterateFlag = true;
+					}
 					
 				}
 				else if(nextBranchName == null ) {
@@ -586,7 +581,7 @@ public class MccCoverageFactory extends
 		return obligationsList;
 	}
 	
-	private static String getNextBranchName(MccBranchPair pair, ArrayList<MccBranch> mccBranchList) {
+	/*private static String getNextBranchName(MccBranchPair pair, ArrayList<MccBranch> mccBranchList) {
 		if(pair == null || pair.getBranchName() == null || mccBranchList == null || mccBranchList.size() <= 0) {
 			return null;
 		}
@@ -605,6 +600,45 @@ public class MccCoverageFactory extends
 				else if(status == 1) { //true  = so look for true branch in mccBranchList
 					if(!b.getTrueBranch().equals("NA"))
 						return b.getTrueBranch();
+					else
+						return null;
+				}
+				else if(status == 2) {
+					return null;
+				}
+			}
+			else
+				continue;
+		}
+		return null;		
+	}*/
+	
+	
+	private static String getNextBranchName(MccBranchPair pair, ArrayList<MccBranch> mccBranchList) {
+		if(pair == null || pair.getBranchName() == null || mccBranchList == null || mccBranchList.size() <= 0) {
+			return null;
+		}
+		
+		String branchName = pair.getBranchName();		
+		int status = pair.getConditionStatus();
+		
+		for(MccBranch b: mccBranchList) {	
+			if(b.getBranchName().equals(branchName)) {
+				if(status == 0) { //false  = so look for false branch in mccBranchList
+					if(!b.getFalseBranch().equals("NA")){
+						System.out.println("in here....."+b.getBranch().getActualBranchId());
+						branchNameMap.put(b.getFalseBranch(), b.getBranch());
+						return b.getFalseBranch();
+					}
+					else 
+						return null;
+				}
+				else if(status == 1) { //true  = so look for true branch in mccBranchList
+					if(!b.getTrueBranch().equals("NA")){
+						System.out.println("in else....."+b.getBranch().getActualBranchId());
+						branchNameMap.put(b.getFalseBranch(), b.getBranch());
+						return b.getTrueBranch();
+					}
 					else
 						return null;
 				}
