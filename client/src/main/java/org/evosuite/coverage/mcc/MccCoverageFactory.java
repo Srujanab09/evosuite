@@ -59,26 +59,20 @@ public class MccCoverageFactory extends
 			if(!limitToCUT && (!Properties.INSTRUMENT_LIBRARIES && !DependencyAnalysis.isTargetProject(className))) continue;
 			final MethodNameMatcher matcher = new MethodNameMatcher();
 			// Branchless methods
-			for (String method : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchlessMethods(className)) {
+		/*	for (String method : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchlessMethods(className)) {
 				if (matcher.fullyQualifiedMethodMatches(method)) {
 					if(!goals.contains(createRootMccTestFitness(className, method))){
 						goals.add(createRootMccTestFitness(className, method));
 					}
 				}
 			}
-
+*/
 			// Branches
 			for (String methodName : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownMethods(className)) {
 				if (!matcher.methodMatches(methodName)) {
 					logger.info("Method " + methodName + " does not match criteria. ");
 					continue;
 				}
-
-				for (Branch b : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).retrieveBranchesInMethod(className,
-						methodName)) {
-					
-                    if(!b.isInstrumented()) {
-          
                 		for(String methodName1 : mccTestObligations.keySet()) {
                 			CopyOnWriteArrayList<CopyOnWriteArrayList<MccBranchPair>> obligationsForMethod = mccTestObligations.get(methodName1);
                 			for(CopyOnWriteArrayList<MccBranchPair> obligation : obligationsForMethod) {
@@ -90,8 +84,8 @@ public class MccCoverageFactory extends
                 					else
                 						status = true;
                 				
-                					if(!goals.contains(createMccCoverageTestFitness(b, bp, status))){
-                						goals.add(createMccCoverageTestFitness(b, bp,status));
+                					if(!goals.contains(createMccCoverageTestFitness(bp, status))){
+                						goals.add(createMccCoverageTestFitness(bp,status));
                 					}
                 					
                 				}
@@ -99,8 +93,6 @@ public class MccCoverageFactory extends
                 			}
                 		}
                     
-                    }
-				}
 			}
 		}
 			return goals;
@@ -151,10 +143,10 @@ public class MccCoverageFactory extends
 	 *         object.
 	 */
 	public static MccCoverageTestFitness createMccCoverageTestFitness(
-			Branch b, MccBranchPair bp, boolean branchExpressionValue ) {
+			MccBranchPair bp, boolean branchExpressionValue ) {
 
-		return new MccCoverageTestFitness(new MccCoverageGoal(b, bp,
-				branchExpressionValue, b.getClassName(), b.getMethodName()));
+		return new MccCoverageTestFitness(new MccCoverageGoal(bp,
+				branchExpressionValue, bp.getBranch().getClassName(), bp.getBranch().getMethodName()));
 	}
 
 	/**
