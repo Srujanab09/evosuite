@@ -109,23 +109,23 @@ public class MccCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		for (MccCoverageTestFitness goal : goals) {
 
 			// Skip instrumented branches - we only want real branches
-			if(goal.getBranch() != null) {
-				if(goal.getBranch().isInstrumented()) {
+			if(goal.getMccBranch()!=null && goal.getMccBranch().getBranch() != null) {
+				if(goal.getMccBranch().getBranch().isInstrumented()) {
 					continue;
 				}
 			}
 			if(Properties.TEST_ARCHIVE)
 				TestsArchive.instance.addGoalToCover(this, goal);
 			
-			if (goal.getBranch() == null) {
+			if (goal.getMccBranch()==null || goal.getMccBranch().getBranch() == null) {
 				branchlessMethodCoverageMap.put(goal.getClassName() + "."
 				                                        + goal.getMethod(), goal);
 			} else {
-				branchesId.add(goal.getBranch().getActualBranchId());
+				branchesId.add(goal.getMccBranch().getBranch().getActualBranchId());
 				if (goal.getBranchExpressionValue())
-					branchCoverageTrueMap.put(goal.getBranch().getActualBranchId(), goal);
+					branchCoverageTrueMap.put(goal.getMccBranch().getBranch().getActualBranchId(), goal);
 				else
-					branchCoverageFalseMap.put(goal.getBranch().getActualBranchId(), goal);
+					branchCoverageFalseMap.put(goal.getMccBranch().getBranch().getActualBranchId(), goal);
 			}
 		}
 		totalGoals = goals.size();
