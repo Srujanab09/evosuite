@@ -1,31 +1,13 @@
 package org.evosuite.coverage.mcc;
 
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
 
-import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.ControlFlowDistance;
 import org.evosuite.coverage.branch.Branch;
-import org.evosuite.coverage.branch.BranchCoverageGoal;
-import org.evosuite.coverage.branch.BranchPool;
-import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.result.BranchInfo;
-import org.evosuite.testcase.ExecutableChromosome;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
-import org.evosuite.testcase.execution.MethodCall;
-import org.objectweb.asm.tree.LabelNode;
-import org.objectweb.asm.Opcodes;
-import org.objectweb.asm.tree.AbstractInsnNode;
-import org.objectweb.asm.tree.InsnNode;
-import org.objectweb.asm.tree.LdcInsnNode;
-import org.objectweb.asm.tree.MethodNode;
-import org.objectweb.asm.tree.VarInsnNode;
+
 
 /**
  * Fitness function for a single test on a single branch
@@ -35,8 +17,6 @@ import org.objectweb.asm.tree.VarInsnNode;
 public class MccCoverageTestFitness extends TestFitnessFunction {
 
 	private static final long serialVersionUID = -6310967747257242580L;
-
-	private final Map<String, Map<String, List<BytecodeInstruction>>> instructionMap = new HashMap<String, Map<String, List<BytecodeInstruction>>>();
 
 	/** Target branch */
 	private final MccCoverageGoal goal;
@@ -58,12 +38,6 @@ public class MccCoverageTestFitness extends TestFitnessFunction {
 		if(goal == null){
 			throw new IllegalArgumentException("goal cannot be null");
 		}
-		int linenumber= goal.getLineNumber();
-		String methodName = goal.getMethodName();
-		
-		
-	
-		//System.out.println("Printing goal linemunber and method name from MccCoverage TestFitness " + linenumber + " " + methodName );
 		this.goal = goal;
 		
 		

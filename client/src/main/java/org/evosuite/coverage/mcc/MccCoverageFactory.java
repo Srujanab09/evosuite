@@ -10,10 +10,10 @@ import org.evosuite.Properties;
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.MethodNameMatcher;
 import org.evosuite.coverage.branch.Branch;
-import org.evosuite.coverage.branch.BranchCoverageGoal;
+
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
-import org.evosuite.graphs.cfg.ControlDependency;
+
 import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.slf4j.Logger;
@@ -50,7 +50,6 @@ public class MccCoverageFactory extends
 	 */
 
 	private List<MccCoverageTestFitness> computeCoverageGoals(boolean limitToCUT){
-		long start = System.currentTimeMillis();
 		List<MccCoverageTestFitness> goals = new ArrayList<MccCoverageTestFitness>();
 		
 		for (String className : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {
@@ -325,7 +324,6 @@ public class MccCoverageFactory extends
 		for(MccBranchInfo bInfo : mccBranchInfoList) {
 			Branch b = bInfo.getBranch();
 			String branchName = bInfo.getBranchName();
-			String whereLabel = bInfo.getBranchName();
 			String trueLabel = bInfo.getLabelForTrue();
 			String falseLabel = bInfo.getLabelForFalse();
 			
@@ -365,9 +363,6 @@ public class MccCoverageFactory extends
 	private static ArrayList<MccBranchInfo> getMccBranchInfoList(ArrayList<String> instsForMethod) {
 		ArrayList<MccBranchInfo> result = new ArrayList<MccBranchInfo>();
 		
-		String prevLabel;
-		String nextLabel;
-		
 		for(String inst : instsForMethod) {
 			// check for the branch inst first
 			if(isBranchInst(inst)) {
@@ -400,7 +395,7 @@ public class MccCoverageFactory extends
 			}
 			else {
 				// label (labelForWhere)
-				prevLabel = inst;
+
 			}
 		}
 		return result;
@@ -538,7 +533,7 @@ public class MccCoverageFactory extends
 		
 		while(iterateFlag) {
 			iterateFlag = false;
-			int index = 0;
+	
 			//CopyOnWriteArrayList<CopyOnWriteArrayList<MccBranchPair>> temp = obligationsList; 
 			for(CopyOnWriteArrayList<MccBranchPair> obligation : obligationsList) {
 				
@@ -575,7 +570,7 @@ public class MccCoverageFactory extends
 					//continue;
 					// do nothing
 				}
-				index++;
+			
 			}
 		}
 		return obligationsList;
