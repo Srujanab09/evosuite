@@ -3,7 +3,6 @@ package org.evosuite.coverage.mcc;
 
 
 import org.evosuite.coverage.ControlFlowDistance;
-import org.evosuite.coverage.branch.Branch;
 import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.TestFitnessFunction;
 import org.evosuite.testcase.execution.ExecutionResult;
@@ -50,8 +49,8 @@ public class MccCoverageTestFitness extends TestFitnessFunction {
 	 * 
 	 * @return a {@link org.evosuite.coverage.branch.Branch} object.
 	 */
-	public Branch getBranch() {
-		return goal.getBranch();
+	public MccBranchPair getMccBranch() {
+		return goal.getMccbranch();
 	}
 
 	public boolean getValue() {
@@ -105,12 +104,17 @@ public class MccCoverageTestFitness extends TestFitnessFunction {
 		ControlFlowDistance distance = goal.getDistance(result);
 
 		double fitness = distance.getResultingBranchFitness();
+		
+
 
 		if(logger.isDebugEnabled()) {
 			logger.debug("Goal at line "+goal.getLineNumber()+": approach level = " + distance.getApproachLevel()
 					+ " / branch distance = " + distance.getBranchDistance() + ", fitness = " + fitness);
 		}
 		updateIndividual(this, individual, fitness);
+		
+	//	System.out.println("printing fitness "+ fitness );
+	//	System.out.println(" for goal :" +goal.getLineNumber());
 		
 		return fitness;
 	}
