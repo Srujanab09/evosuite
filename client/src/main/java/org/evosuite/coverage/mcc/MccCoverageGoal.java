@@ -20,14 +20,12 @@
 package org.evosuite.coverage.mcc;
 
 import java.io.IOException;
-import java.io.ObjectInputStream;
+
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
 
 import org.evosuite.TestGenerationContext;
 import org.evosuite.coverage.ControlFlowDistance;
-import org.evosuite.coverage.branch.Branch;
-import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.branch.ControlFlowDistanceCalculator;
 import org.evosuite.graphs.cfg.BytecodeInstructionPool;
 import org.evosuite.graphs.cfg.ControlDependency;
@@ -48,8 +46,6 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 	 */
 	private static final long serialVersionUID = 1L;
 
-	private transient Branch branch;
-	
 	private MccBranchPair mccbranch;
 	
 	private final boolean value;
@@ -63,22 +59,14 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 	 */
 	private final int lineNumber;
 
-
-	public int getId() {
-		return branch.getActualBranchId();
-
-	}
 	
-	
-	public MccCoverageGoal(Branch branch, MccBranchPair mccbranch, boolean value, String className,
+	public MccCoverageGoal(MccBranchPair mccbranch, boolean value, String className,
 	        String methodName) {
 		if (className == null || methodName == null)
 			throw new IllegalArgumentException("null given");
-		if (branch == null && !value)
+		if (mccbranch == null && !value)
 			throw new IllegalArgumentException(
 			        "expect goals for a root branch to always have value set to true");
-		this.branch = branch;
-		
 		
 		this.value = value;
 
@@ -86,10 +74,10 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 		this.methodName = methodName;
 
 		this.mccbranch = mccbranch;
-		if (branch != null) {
-			lineNumber = branch.getInstruction().getLineNumber();
-			if (!branch.getMethodName().equals(methodName)
-			        || !branch.getClassName().equals(className))
+		if (mccbranch != null && mccbranch.getBranch() != null) {
+			lineNumber = mccbranch.getBranch().getInstruction().getLineNumber();
+			if (!mccbranch.getBranch().getMethodName().equals(methodName)
+			        || !mccbranch.getBranch().getClassName().equals(className))
 				throw new IllegalArgumentException(
 				        "expect explicitly given information about a branch to coincide with the information given by that branch");
 		} else {
@@ -98,16 +86,14 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 		}
 	}
 
-	public MccCoverageGoal(Branch branch,MccBranchPair mccbranch, boolean value, String className,
+	public MccCoverageGoal(MccBranchPair mccbranch, boolean value, String className,
 	                          String methodName, int lineNumber) {
 
 		if (className == null || methodName == null)
 			throw new IllegalArgumentException("null given");
 
-		if (branch == null && !value)
+		if (mccbranch == null && !value)
 			throw new IllegalArgumentException("expect goals for a root branch to always have value set to true");
-
-		this.branch = branch;
 		
 		this.mccbranch = mccbranch;
 		this.value = value;
@@ -119,7 +105,7 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 	
 	public MccCoverageGoal(ControlDependency cd, MccBranchPair mccbranch, String className, String methodName) {
 		
-		this(cd.getBranch(), mccbranch, cd.getBranchExpressionValue(), className, methodName);
+		this(mccbranch, cd.getBranchExpressionValue(), className, methodName);
 	}
 
 	/**
@@ -132,7 +118,7 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 	 *            a {@link java.lang.String} object.
 	 */
 	public MccCoverageGoal(String className, String methodName) {
-		this.branch = null;
+		this.mccbranch = null;
 		this.value = true;
 
 		this.className = className;
@@ -141,14 +127,6 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 				.getFirstLineNumberOfMethod(className,  methodName);		                                                                                                                  
 	}
 
-
-
-	/**
-	 * @return the branch
-	 */
-	public Branch getBranch() {
-		return branch;
-	}
 
 	/**
 	 * @return the value
@@ -200,15 +178,15 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 	 * @return a boolean.
 	 */
 	public boolean isConnectedTo(MccCoverageGoal goal) {
-		if (branch == null || goal.branch == null) {
+		if (mccbranch == null || goal.getMccbranch() == null) {
 			// one of the goals targets a root branch
 			return goal.methodName.equals(methodName) && goal.className.equals(className);
 		}
 
 		// TODO map this to new CDG !
 
-		return branch.getInstruction().isDirectlyControlDependentOn(goal.branch)
-		        || goal.branch.getInstruction().isDirectlyControlDependentOn(branch);
+		return mccbranch.getBranch().getInstruction().isDirectlyControlDependentOn(goal.getMccbranch().getBranch())
+		        || goal.getMccbranch().getBranch().getInstruction().isDirectlyControlDependentOn(mccbranch.getBranch());
 	}
 
 	/**
@@ -222,7 +200,7 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 	 */
 	public ControlFlowDistance getDistance(ExecutionResult result) {
 
-		ControlFlowDistance r = ControlFlowDistanceCalculator.getDistance(result, branch, value,
+		ControlFlowDistance r = ControlFlowDistanceCalculator.getDistance(result, mccbranch.getBranch(), value,
 				className, methodName);
 		return r;
 	}
@@ -231,7 +209,12 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 	 * 
 	 * @return
 	 */
-	public int hashCodeWithoutValue() {
+	
+	
+	/*
+	 * By srujana... temp commented for testing the code...
+	 * 
+	 * public int hashCodeWithoutValue() {
 		final int prime = 31;
 		int result = 1;
 		result = prime * result + (branch == null ? 0 : branch.getActualBranchId());
@@ -241,7 +224,7 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 		result = prime * result + methodName.hashCode();
 		return result;
 	}
-	
+	*/
 	// inherited from Object
 
 	/**
@@ -252,8 +235,8 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 	@Override
 	public String toString() {
 		String name = className + "." + methodName + ":";
-		if (branch != null) {
-			name += " " + branch.toString();
+		if (mccbranch != null && mccbranch.getBranch()!=null) {
+			name += " " + mccbranch.getBranch().toString();
 			if (value)
 				name += " - true";
 			else
@@ -269,9 +252,9 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 	public int hashCode() {
 		final int prime = 31;
 		int result = 1;
-		result = prime * result + (branch == null ? 0 : branch.getActualBranchId());
+		result = prime * result + (mccbranch == null || mccbranch.getBranch() ==null? 0 : mccbranch.getBranch().getActualBranchId());
 		result = prime * result
-		        + (branch == null ? 0 : branch.getInstruction().getInstructionId());
+		        + (mccbranch == null || mccbranch.getBranch() ==null? 0 : mccbranch.getBranch().getInstruction().getInstructionId());
 		// TODO sure you want to call hashCode() on the cfg? doesn't that take
 		// long?
 		// Seems redundant -- GF
@@ -299,8 +282,8 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 
 		MccCoverageGoal other = (MccCoverageGoal) obj;
 		// are we both root goals?
-		if (this.branch == null) {
-			if (other.branch != null)
+		if (this.mccbranch == null|| this.mccbranch.getBranch() == null) {
+			if (other.mccbranch != null || other.mccbranch.getBranch() !=null)
 				return false;
 			else
 				// i don't have to check for value at this point, because if
@@ -309,12 +292,12 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 				        && this.className.equals(other.className);
 		}
 		// well i am not, if you are we are different
-		if (other.branch == null)
+		if (other.mccbranch == null || other.mccbranch.getBranch() ==null)
 			return false;
 
 		// so we both have a branch to cover, let's look at that branch and the
 		// way we want it to be evaluated
-		if (!this.branch.equals(other.branch))
+		if (!this.mccbranch.getBranch().equals(other.mccbranch.getBranch()))
 			return false;
 		else {
 			return this.value == other.value;
@@ -342,21 +325,23 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 	private void writeObject(ObjectOutputStream oos) throws IOException {
 		oos.defaultWriteObject();
 		// Write/save additional fields
-		if (branch != null)
-			oos.writeInt(branch.getActualBranchId());
+		if (mccbranch != null)
+			oos.writeInt(mccbranch.getBranch().getActualBranchId());
 		else
 			oos.writeInt(-1);
 	}
 
 	// assumes "static java.util.Date aDate;" declared
-	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
+/*
+ *  by srujana temp cometing the code to test
+ * 	private void readObject(ObjectInputStream ois) throws ClassNotFoundException,
 	        IOException {
 		ois.defaultReadObject();
 
 		int branchId = ois.readInt();
 		if (branchId >= 0)
-			this.branch = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranch(branchId);
+			this.mccbranch = BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranch(branchId);
 		else
 			this.branch = null;
-	}
+	}*/
 }
