@@ -62,8 +62,9 @@ public class MccCoverageFactory extends
 			// Branchless methods
 			for (String method : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchlessMethods(className)) {
 				if (matcher.fullyQualifiedMethodMatches(method)) {
-					
-					goals.add(createRootMccTestFitness(className, method));
+					if(!goals.contains(createRootMccTestFitness(className, method))){
+						goals.add(createRootMccTestFitness(className, method));
+					}
 				}
 			}
 
@@ -91,7 +92,8 @@ public class MccCoverageFactory extends
                 						status = true;
                 				
                 					if(!goals.contains(createMccCoverageTestFitness(b, bp, status))){
-                					goals.add(createMccCoverageTestFitness(b, bp,status));}
+                						goals.add(createMccCoverageTestFitness(b, bp,status));
+                					}
                 					
                 				}
                 				
@@ -199,7 +201,6 @@ public class MccCoverageFactory extends
 					MccCoverageFactory.mccInsts.get(methodName).add(inst);
 					if(BranchPool.getInstance(classLoader).isKnownAsBranch(instruction)){
 						Branch b = BranchPool.getInstance(classLoader).getBranchForInstruction(instruction);
-						System.out.println("Printing actual id ......... "+b.getActualBranchId());
 						MccCoverageFactory.mccInstruction.put(inst, b);
 					}
 					
@@ -210,7 +211,6 @@ public class MccCoverageFactory extends
 					MccCoverageFactory.mccInsts.put(methodName, temp);
 					if(BranchPool.getInstance(classLoader).isKnownAsBranch(instruction)){
 						Branch b = BranchPool.getInstance(classLoader).getBranchForInstruction(instruction);
-						System.out.println("Printing actual id >>>>>>>>>>>> "+b.getActualBranchId());
 						MccCoverageFactory.mccInstruction.put(inst, b);
 					}
 				}
@@ -626,7 +626,6 @@ public class MccCoverageFactory extends
 			if(b.getBranchName().equals(branchName)) {
 				if(status == 0) { //false  = so look for false branch in mccBranchList
 					if(!b.getFalseBranch().equals("NA")){
-						System.out.println("in here....."+b.getBranch().getActualBranchId());
 						branchNameMap.put(b.getFalseBranch(), b.getBranch());
 						return b.getFalseBranch();
 					}
@@ -635,7 +634,6 @@ public class MccCoverageFactory extends
 				}
 				else if(status == 1) { //true  = so look for true branch in mccBranchList
 					if(!b.getTrueBranch().equals("NA")){
-						System.out.println("in else....."+b.getBranch().getActualBranchId());
 						branchNameMap.put(b.getFalseBranch(), b.getBranch());
 						return b.getTrueBranch();
 					}
