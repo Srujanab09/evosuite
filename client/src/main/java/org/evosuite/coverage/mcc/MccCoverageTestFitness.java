@@ -9,7 +9,7 @@ import org.evosuite.testcase.execution.ExecutionResult;
 
 
 /**
- * Fitness function for a single test on a single branch
+ * Fitness function for a single test on a single obligation
  * 
  * @author Srujana Bollina
  */
@@ -33,13 +33,10 @@ public class MccCoverageTestFitness extends TestFitnessFunction {
  */
 	public MccCoverageTestFitness(MccCoverageGoal goal)  throws IllegalArgumentException{
 		
-		
 		if(goal == null){
 			throw new IllegalArgumentException("goal cannot be null");
 		}
 		this.goal = goal;
-		
-		
 	}
 	
 	/**
@@ -112,9 +109,6 @@ public class MccCoverageTestFitness extends TestFitnessFunction {
 					+ " / branch distance = " + distance.getBranchDistance() + ", fitness = " + fitness);
 		}
 		updateIndividual(this, individual, fitness);
-		
-	//	System.out.println("printing fitness "+ fitness );
-	//	System.out.println(" for goal :" +goal.getLineNumber());
 		
 		return fitness;
 	}
