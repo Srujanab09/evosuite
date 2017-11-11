@@ -1,22 +1,4 @@
-/**
- * Copyright (C) 2010-2016 Gordon Fraser, Andrea Arcuri and EvoSuite
- * contributors
- *
- * This file is part of EvoSuite.
- *
- * EvoSuite is free software: you can redistribute it and/or modify it
- * under the terms of the GNU Lesser General Public License as published
- * by the Free Software Foundation, either version 3.0 of the License, or
- * (at your option) any later version.
- *
- * EvoSuite is distributed in the hope that it will be useful, but
- * WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
- * Lesser Public License for more details.
- *
- * You should have received a copy of the GNU Lesser General Public
- * License along with EvoSuite. If not, see <http://www.gnu.org/licenses/>.
- */
+
 package org.evosuite.coverage.mcc;
 
 import java.io.IOException;
@@ -35,7 +17,7 @@ import org.evosuite.testcase.execution.ExecutionResult;
  * A single branch coverage goal Either true/false evaluation of a jump
  * condition, or a method entry
  * 
- * @author Gordon Fraser, Andre Mis
+ * @author Srujana Bollina
  */
 public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal> {
 
@@ -84,22 +66,6 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 			lineNumber = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT())
 					.getFirstLineNumberOfMethod(className,methodName);
 		}
-	}
-
-	public MccCoverageGoal(MccBranchPair mccbranch, boolean value, String className,
-	                          String methodName, int lineNumber) {
-
-		if (className == null || methodName == null)
-			throw new IllegalArgumentException("null given");
-
-		if (mccbranch == null && !value)
-			throw new IllegalArgumentException("expect goals for a root branch to always have value set to true");
-		
-		this.mccbranch = mccbranch;
-		this.value = value;
-		this.className = className;
-		this.methodName = methodName;
-		this.lineNumber = lineNumber;
 	}
 
 	
@@ -205,27 +171,7 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 		return r;
 	}
 
-	/**
-	 * 
-	 * @return
-	 */
-	
-	
-	/*
-	 * By srujana... temp commented for testing the code...
-	 * 
-	 * public int hashCodeWithoutValue() {
-		final int prime = 31;
-		int result = 1;
-		result = prime * result + (branch == null ? 0 : branch.getActualBranchId());
-		result = prime * result
-		        + (branch == null ? 0 : branch.getInstruction().getInstructionId());
-		result = prime * result + className.hashCode();
-		result = prime * result + methodName.hashCode();
-		return result;
-	}
-	*/
-	// inherited from Object
+
 
 	/**
 	 * {@inheritDoc}
