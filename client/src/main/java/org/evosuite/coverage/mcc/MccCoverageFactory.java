@@ -21,10 +21,10 @@ import org.slf4j.LoggerFactory;
 
 /**
  * <p>
- * BranchCoverageFactory class.
+ * MccCoverageFactory class.
  * </p>
  * 
- * @author Gordon Fraser, Andre Mis
+ * @author Srujana Bollina
  */
 public class MccCoverageFactory extends
 		AbstractFitnessFactory<MccCoverageTestFitness> {
@@ -35,7 +35,7 @@ public class MccCoverageFactory extends
 	
 	public static HashMap<String, Branch> mccInstruction = new HashMap<String, Branch>();
 
-	// for testing
+	// for testing but worked and using it
 	static HashMap<String, Branch> branchNameMap = new HashMap<String, Branch>();
 	
 	public static HashMap<String, ArrayList<MccBranchInfo>> mccBranchInfoMap = new HashMap<String, ArrayList<MccBranchInfo>>();
@@ -49,28 +49,20 @@ public class MccCoverageFactory extends
 	 * @return
 	 */
 
-	private List<MccCoverageTestFitness> computeCoverageGoals(boolean limitToCUT){
+	public List<MccCoverageTestFitness> getCoverageGoals(){
 		List<MccCoverageTestFitness> goals = new ArrayList<MccCoverageTestFitness>();
 		
+		long start = System.currentTimeMillis();
+		
 		for (String className : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownClasses()) {
-			//when limitToCUT== true, if not the class under test of a inner/anonymous class, continue
-			if(limitToCUT && !isCUT(className)) continue;
-			//when limitToCUT==false, consider all classes, but excludes libraries ones according the INSTRUMENT_LIBRARIES property
-			if(!limitToCUT && (!Properties.INSTRUMENT_LIBRARIES && !DependencyAnalysis.isTargetProject(className))) continue;
+			if(!Properties.TARGET_CLASS.equals("")&&!className.equals(Properties.TARGET_CLASS)) continue;
 			final MethodNameMatcher matcher = new MethodNameMatcher();
-			// Branchless methods
-		/*	for (String method : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).getBranchlessMethods(className)) {
-				if (matcher.fullyQualifiedMethodMatches(method)) {
-					if(!goals.contains(createRootMccTestFitness(className, method))){
-						goals.add(createRootMccTestFitness(className, method));
-					}
-				}
-			}
-*/
+
 			// Branches
 			for (String methodName : BranchPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT()).knownMethods(className)) {
 				if (!matcher.methodMatches(methodName)) {
-					logger.info("Method " + methodName + " does not match criteria. ");
+					logger.info("Method " + methodName
+							+ " does not match criteria. ");
 					continue;
 				}
                 		for(String methodName1 : mccTestObligations.keySet()) {
@@ -92,56 +84,13 @@ public class MccCoverageFactory extends
                 				
                 			}
                 		}
-                    
 			}
 		}
+		goalComputationTime = System.currentTimeMillis() - start;
+		System.out.println(goals.size()+"printing the number of goals....");
 			return goals;
 	}
-	
-	/*
-	 * (non-Javadoc)
-	 * 
-	 * @see
-	 * org.evosuite.coverage.TestCoverageFactory#getCoverageGoals()
-	 */
-	/** {@inheritDoc} */
-	@Override
-	public List<MccCoverageTestFitness> getCoverageGoals() {
-		return computeCoverageGoals(true);
-	}
 
-	public List<MccCoverageTestFitness> getCoverageGoalsForAllKnownClasses() {
-		return computeCoverageGoals(false); 
-	}
-
-
-	/**
-	 * Create a fitness function for branch coverage aimed at executing the
-	 * given ControlDependency.
-	 * 
-	 * @param cd
-	 *            a {@link org.evosuite.graphs.cfg.ControlDependency} object.
-	 * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness}
-	 *         object.
-	 */
-/*
-	public static MccCoverageTestFitness createMccCoverageTestFitness(
-			ControlDependency cd) {
-		return createMccCoverageTestFitness(cd.getBranch(),
-				cd.getBranchExpressionValue());
-	}
- */
-	/**
-	 * Create a fitness function for branch coverage aimed at executing the
-	 * Branch identified by b as defined by branchExpressionValue.
-	 * 
-	 * @param b
-	 *            a {@link org.evosuite.coverage.branch.Branch} object.
-	 * @param branchExpressionValue
-	 *            a boolean.
-	 * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness}
-	 *         object.
-	 */
 	public static MccCoverageTestFitness createMccCoverageTestFitness(
 			MccBranchPair bp, boolean branchExpressionValue ) {
 
@@ -149,43 +98,6 @@ public class MccCoverageFactory extends
 				branchExpressionValue, bp.getBranch().getClassName(), bp.getBranch().getMethodName()));
 	}
 
-	/**
-	 * Create a fitness function for branch coverage aimed at covering the root
-	 * branch of the given method in the given class. Covering a root branch
-	 * means entering the method.
-	 * 
-	 * @param className
-	 *            a {@link java.lang.String} object.
-	 * @param method
-	 *            a {@link java.lang.String} object.
-	 * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness}
-	 *         object.
-	 */
-	public static MccCoverageTestFitness createRootMccTestFitness(
-			String className, String method) {
-
-		return new MccCoverageTestFitness(new MccCoverageGoal(className,
-				method.substring(method.lastIndexOf(".") + 1)));
-	}
-
-	/**
-	 * Convenience method calling createRootBranchTestFitness(class,method) with
-	 * the respective class and method of the given BytecodeInstruction.
-	 * 
-	 * @param instruction
-	 *            a {@link org.evosuite.graphs.cfg.BytecodeInstruction} object.
-	 * @return a {@link org.evosuite.coverage.branch.BranchCoverageTestFitness}
-	 *         object.
-	 */
-	public static MccCoverageTestFitness createRootBranchTestFitness(
-			BytecodeInstruction instruction) {
-		if (instruction == null)
-			throw new IllegalArgumentException("null given");
-
-		return createRootMccTestFitness(instruction.getClassName(),
-				instruction.getMethodName());
-	}
-	
 	public static void storeInstrcutionForMCC(String methodName, BytecodeInstruction instruction, String inst, ClassLoader classLoader) {
 		synchronized (instruction) {
 				if(MccCoverageFactory.mccInsts.containsKey(methodName)) {
@@ -306,9 +218,6 @@ public class MccCoverageFactory extends
 		
 
 	}
-	
-	
-	
 	
 	private static ArrayList<MccBranch> getMccBranchList(ArrayList<MccBranchInfo> mccBranchInfoList) {
 		ArrayList<MccBranch> result = new ArrayList<MccBranch>();
@@ -567,39 +476,6 @@ public class MccCoverageFactory extends
 		}
 		return obligationsList;
 	}
-	
-	/*private static String getNextBranchName(MccBranchPair pair, ArrayList<MccBranch> mccBranchList) {
-		if(pair == null || pair.getBranchName() == null || mccBranchList == null || mccBranchList.size() <= 0) {
-			return null;
-		}
-		
-		String branchName = pair.getBranchName();		
-		int status = pair.getConditionStatus();
-		
-		for(MccBranch b: mccBranchList) {	
-			if(b.getBranchName().equals(branchName)) {
-				if(status == 0) { //false  = so look for false branch in mccBranchList
-					if(!b.getFalseBranch().equals("NA"))
-						return b.getFalseBranch();
-					else 
-						return null;
-				}
-				else if(status == 1) { //true  = so look for true branch in mccBranchList
-					if(!b.getTrueBranch().equals("NA"))
-						return b.getTrueBranch();
-					else
-						return null;
-				}
-				else if(status == 2) {
-					return null;
-				}
-			}
-			else
-				continue;
-		}
-		return null;		
-	}*/
-	
 	
 	private static String getNextBranchName(MccBranchPair pair, ArrayList<MccBranch> mccBranchList) {
 		if(pair == null || pair.getBranchName() == null || mccBranchList == null || mccBranchList.size() <= 0) {
