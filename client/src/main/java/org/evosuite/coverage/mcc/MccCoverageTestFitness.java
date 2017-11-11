@@ -11,7 +11,7 @@ import org.evosuite.testcase.execution.ExecutionResult;
 /**
  * Fitness function for a single test on a single branch
  * 
- * @author Gordon Fraser
+ * @author Srujana Bollina
  */
 public class MccCoverageTestFitness extends TestFitnessFunction {
 
