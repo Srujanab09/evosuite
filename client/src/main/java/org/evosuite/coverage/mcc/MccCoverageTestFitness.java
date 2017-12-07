@@ -1,6 +1,8 @@
 package org.evosuite.coverage.mcc;
 
-
+import java.util.HashMap;
+import java.util.Map.Entry;
+import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.evosuite.coverage.ControlFlowDistance;
 import org.evosuite.testcase.TestChromosome;
@@ -17,8 +19,13 @@ public class MccCoverageTestFitness extends TestFitnessFunction {
 
 	private static final long serialVersionUID = -6310967747257242580L;
 
-	/** Target branch */
-	private final MccCoverageGoal goal;
+	/** Target:  List of branches */
+	private MccCoverageGoal goal;
+
+	public CopyOnWriteArrayList<MccBranchPair> getGoal() {
+		return goal.getObligation();
+	}
+
 
 	/**
 	 * Constructor - fitness is specific to a branch
@@ -39,25 +46,6 @@ public class MccCoverageTestFitness extends TestFitnessFunction {
 		this.goal = goal;
 	}
 	
-	/**
-	 * <p>
-	 * getBranch
-	 * </p>
-	 * 
-	 * @return a {@link org.evosuite.coverage.branch.Branch} object.
-	 */
-	public MccBranchPair getMccBranch() {
-		return goal.getMccbranch();
-	}
-
-	public boolean getValue() {
-		return goal.getValue();
-	}
-
-	public MccCoverageGoal getMccGoal() {
-		return goal;
-	}
-
 	/**
 	 * <p>
 	 * getClassName
@@ -81,33 +69,28 @@ public class MccCoverageTestFitness extends TestFitnessFunction {
 	}
 
 	/**
-	 * <p>
-	 * getBranchExpressionValue
-	 * </p>
-	 * 
-	 * @return a boolean.
-	 */
-	public boolean getBranchExpressionValue() {
-		return goal.getValue();
-	}
-
-	/**
 	 * {@inheritDoc}
 	 * 
 	 * Calculate approach level + branch distance
 	 */
 	@Override
 	public double getFitness(TestChromosome individual, ExecutionResult result) {
-		ControlFlowDistance distance = goal.getDistance(result);
+		HashMap<Integer, ControlFlowDistance> obligationDist = goal.getDistance(result);
 
-		double fitness = distance.getResultingBranchFitness();
-		
+		double fitness = 0 ;
 
-
-		if(logger.isDebugEnabled()) {
-			logger.debug("Goal at line "+goal.getLineNumber()+": approach level = " + distance.getApproachLevel()
-					+ " / branch distance = " + distance.getBranchDistance() + ", fitness = " + fitness);
+		for (Entry<Integer, ControlFlowDistance> val: obligationDist.entrySet()) {
+			
+				fitness = fitness + val.getValue().getResultingBranchFitness();
+				
+				/*if(logger.isDebugEnabled()) {
+					logger.debug("Goal at line "+goal.getLineNumber()+": approach level = " + distance.getApproachLevel()
+							+ " / branch distance = " + distance.getBranchDistance() + ", fitness = " + fitness);
+				}*/
 		}
+		
+	
+		
 		updateIndividual(this, individual, fitness);
 		
 		return fitness;

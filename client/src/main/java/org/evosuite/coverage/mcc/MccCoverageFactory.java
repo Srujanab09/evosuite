@@ -14,7 +14,6 @@ import org.evosuite.coverage.branch.Branch;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.graphs.cfg.BytecodeInstruction;
 
-import org.evosuite.setup.DependencyAnalysis;
 import org.evosuite.testsuite.AbstractFitnessFactory;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -68,37 +67,32 @@ public class MccCoverageFactory extends
                 		for(String methodName1 : mccTestObligations.keySet()) {
                 			CopyOnWriteArrayList<CopyOnWriteArrayList<MccBranchPair>> obligationsForMethod = mccTestObligations.get(methodName1);
                 			for(CopyOnWriteArrayList<MccBranchPair> obligation : obligationsForMethod) {
-                				
-                				for(MccBranchPair bp : obligation) {
-                					boolean status = false;
-                					if(bp.getConditionStatus() == 0) 
-                						status = false;
-                					else
-                						status = true;
-                				
-                					if(!goals.contains(createMccCoverageTestFitness(bp, status))){
-                						goals.add(createMccCoverageTestFitness(bp,status));
-                					}
-                					
+                				if(!goals.contains(createMccCoverageTestFitness(obligation))){
+            						goals.add(createMccCoverageTestFitness(obligation));
                 				}
                 				
                 			}
                 		}
 			}
 		}
+		
 		goalComputationTime = System.currentTimeMillis() - start;
-		System.out.println(goals.size()+"printing the number of goals....");
 			return goals;
 	}
 
 	public static MccCoverageTestFitness createMccCoverageTestFitness(
-			MccBranchPair bp, boolean branchExpressionValue ) {
+			CopyOnWriteArrayList<MccBranchPair> obligation ) {
+		
+		for(MccBranchPair bp : obligation) {
+			return new MccCoverageTestFitness(new MccCoverageGoal(obligation,
+					bp.getBranch().getClassName(), bp.getBranch().getMethodName()));
+		}
+		
 
-		return new MccCoverageTestFitness(new MccCoverageGoal(bp,
-				branchExpressionValue, bp.getBranch().getClassName(), bp.getBranch().getMethodName()));
+		return null;
 	}
 
-	public static void storeInstrcutionForMCC(String methodName, BytecodeInstruction instruction, String inst, ClassLoader classLoader) {
+	public static void storeInstrcutionForMCC(String ClassName, String methodName, BytecodeInstruction instruction, String inst, ClassLoader classLoader) {
 		synchronized (instruction) {
 				if(MccCoverageFactory.mccInsts.containsKey(methodName)) {
 					MccCoverageFactory.mccInsts.get(methodName).add(inst);
@@ -106,7 +100,6 @@ public class MccCoverageFactory extends
 						Branch b = BranchPool.getInstance(classLoader).getBranchForInstruction(instruction);
 						MccCoverageFactory.mccInstruction.put(inst, b);
 					}
-					
 				}
 				else {
 					ArrayList<String> temp = new ArrayList<String>();
@@ -120,15 +113,15 @@ public class MccCoverageFactory extends
 		}
 		
 	}
-	private static int counter = 0;
+	//private static int counter = 0;
 	
 	public static void processMccInstrcution() {
-			System.out.println("----processMccInstrcution:::"+counter++);
+		//	System.out.println("----processMccInstrcution:::"+counter++);
 		// Get the method level branch info for MCC: MccBranchInfo
 		for(String methodName : mccInsts.keySet()) {
 			ArrayList<String> instsForMethod = mccInsts.get(methodName);
 			//System.out.println("----Mcc Method Name:::"+methodName);
-			ArrayList<MccBranchInfo> list =  getMccBranchInfoList(instsForMethod);
+			ArrayList<MccBranchInfo> list =  getMccBranchInfoList(methodName, instsForMethod);
 			mccBranchInfoMap.put(methodName, list);
 			
 			// Get the Test obligations for MCC: MccTruthTable
@@ -210,6 +203,7 @@ public class MccCoverageFactory extends
 				}
 				if(!MccCoverageFactory.mccTestObligations.containsValue(obligations)){
 				MccCoverageFactory.mccTestObligations.put(methodName, obligations);
+	
 				printObligations();
 				}
 
@@ -261,19 +255,20 @@ public class MccCoverageFactory extends
 		return result;
 	}
 	
-	private static ArrayList<MccBranchInfo> getMccBranchInfoList(ArrayList<String> instsForMethod) {
+	private static ArrayList<MccBranchInfo> getMccBranchInfoList(String methodName, ArrayList<String> instsForMethod) {
 		ArrayList<MccBranchInfo> result = new ArrayList<MccBranchInfo>();
 		
 		for(String inst : instsForMethod) {
 			// check for the branch inst first
 			if(isBranchInst(inst)) {
+				
+				Branch b = mccInstruction.get(inst);
+				
 				int index = instsForMethod.indexOf(inst);
 				MccBranchInfo mccBranchInfo = new MccBranchInfo();
 				// get the branch name
 				String branchName = getBranchName(inst);
 				mccBranchInfo.setBranchName(branchName);
-				
-				Branch b = mccInstruction.get(inst);
 				mccBranchInfo.setBranch(b);
 				
 				
@@ -293,6 +288,7 @@ public class MccCoverageFactory extends
 				mccBranchInfo.setLabelForFalse(labelForFalse);
 				if(!isMccBranchInfoExists(result, mccBranchInfo.getBranchName()))
 					result.add(mccBranchInfo);
+				
 			}
 			else {
 				// label (labelForWhere)
@@ -323,6 +319,9 @@ public class MccCoverageFactory extends
 		}
 		else if(inst.contains("Branch") && inst.substring(inst.indexOf("Branch")).contains("ICMPLT")){
 			result = inst.substring(inst.indexOf("Branch"), inst.indexOf("ICMPLT"));
+		}
+		else if(inst.contains("Branch") && inst.substring(inst.indexOf("Branch")).contains("IFLT")){
+			result = inst.substring(inst.indexOf("Branch"), inst.indexOf("IFLT"));
 		}
 		else {
 			System.out.println("In MCC coverage: Wrong instruction for branchName...:"+inst);

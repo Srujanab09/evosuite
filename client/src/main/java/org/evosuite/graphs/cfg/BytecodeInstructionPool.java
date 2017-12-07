@@ -27,7 +27,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-
+import org.evosuite.Properties;
 import org.evosuite.coverage.branch.BranchPool;
 import org.evosuite.coverage.mcc.MccCoverageFactory;
 import org.evosuite.runtime.instrumentation.AnnotatedLabel;
@@ -137,7 +137,7 @@ public class BytecodeInstructionPool {
 
 			registerInstruction(instruction);
 			if(mccflag)
-				MccCoverageFactory.storeInstrcutionForMCC(methodName, instruction, inst, classLoader);
+				MccCoverageFactory.storeInstrcutionForMCC(className, methodName, instruction, inst, classLoader);
 			
 				//MccCoverageFactory.storeInstrcutionForMCC(methodName,instruction, instructionCopy, classLoader);
 
@@ -149,7 +149,12 @@ public class BytecodeInstructionPool {
 			        "expect instruction pool to return non-null non-empty list of instructions for a previously registered method "
 			                + methodName);
 		
+		//if(Properties.CRITERION.equals(Properties.Criterion.MCC)){
+		//	System.out.println("checking criterion");
+			
+		//}
 		MccCoverageFactory.processMccInstrcution();
+		
 		return r;
 	}
 
