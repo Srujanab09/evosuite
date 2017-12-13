@@ -45,38 +45,7 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 	public int getLineNumber() {
 		return lineNumber;
 	}
-/*	
-	public MccCoverageGoal(MccBranchPair mccbranch, boolean value, String className,
-	        String methodName) {
-		if (className == null || methodName == null)
-			throw new IllegalArgumentException("null given");
-		if (mccbranch == null && !value)
-			throw new IllegalArgumentException(
-			        "expect goals for a root branch to always have value set to true");
-	
-		this.className = className;
-		this.methodName = methodName;
 
-		this.mccbranch = mccbranch;
-		if (mccbranch != null && mccbranch.getBranch() != null) {
-			lineNumber = mccbranch.getBranch().getInstruction().getLineNumber();
-			if (!mccbranch.getBranch().getMethodName().equals(methodName)
-			        || !mccbranch.getBranch().getClassName().equals(className))
-				throw new IllegalArgumentException(
-				        "expect explicitly given information about a branch to coincide with the information given by that branch");
-		} else {
-			lineNumber = BytecodeInstructionPool.getInstance(TestGenerationContext.getInstance().getClassLoaderForSUT())
-					.getFirstLineNumberOfMethod(className,methodName);
-		}
-	}
-
-	
-	public MccCoverageGoal(ControlDependency cd, CopyOnWriteArrayList<MccBranchPair> obligation, String className, String methodName) {
-		
-		this(mccbranch, cd.getBranchExpressionValue(), className, methodName);
-	}
-
-*/
 
 	public MccCoverageGoal(CopyOnWriteArrayList<MccBranchPair> obligation, String className, String methodName) {
 
