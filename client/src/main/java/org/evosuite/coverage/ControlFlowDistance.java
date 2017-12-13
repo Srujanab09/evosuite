@@ -22,6 +22,8 @@
  */
 package org.evosuite.coverage;
 
+import java.io.Serializable;
+
 import org.evosuite.ga.FitnessFunction;
 
 /**
@@ -29,8 +31,13 @@ import org.evosuite.ga.FitnessFunction;
  *
  * @author Gordon Fraser, Andre Mis
  */
-public class ControlFlowDistance implements Comparable<ControlFlowDistance> {
+public class ControlFlowDistance implements Serializable, Comparable<ControlFlowDistance> {
 
+	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = -591978662872880698L;
 	// TODO make private and redirect all accesses to setter and getter - was
 	// too lazy to do concurrency and mutation package right now
 	public int approachLevel;
