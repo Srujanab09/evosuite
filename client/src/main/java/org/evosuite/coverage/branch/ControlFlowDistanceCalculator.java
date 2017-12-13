@@ -19,6 +19,7 @@
  */
 package org.evosuite.coverage.branch;
 
+import java.io.Serializable;
 import java.util.*;
 
 import org.evosuite.coverage.ControlFlowDistance;
@@ -67,8 +68,15 @@ import org.slf4j.LoggerFactory;
  * 
  * @author Andre Mis
  */
-public class ControlFlowDistanceCalculator {
+public class ControlFlowDistanceCalculator implements Serializable{
 
+	
+
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 	private static Logger logger = LoggerFactory.getLogger(ControlFlowDistanceCalculator.class);
 
 	// DONE hold intermediately calculated ControlFlowDistances in
