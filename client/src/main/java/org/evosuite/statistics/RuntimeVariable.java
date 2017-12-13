@@ -416,10 +416,10 @@ public enum RuntimeVariable {
 			Integer totalGoals = getIntegerValue(map,Total_Goals);
 			Integer coveredGoals = getIntegerValue(map,Covered_Goals); 
 
-			if(coveredGoals!=null && totalGoals!=null && coveredGoals > totalGoals){
+		/*	if(coveredGoals!=null && totalGoals!=null && coveredGoals > totalGoals){
 				logger.error("Obtained invalid goal count: covered "+coveredGoals+" out of "+totalGoals);
 				valid = false;
-			}
+			}*/
 			
 			Integer totalMethods = getIntegerValue(map,Total_Methods);
 			Integer coveredMethods = getIntegerValue(map,Covered_Methods); 
