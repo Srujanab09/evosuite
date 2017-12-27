@@ -143,7 +143,7 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 				else
 					status = true;
 
-				name += " " + bp.getBranch().toString();
+				name += " " + bp.getBranchName().toString();
 				
 			if (status)
 				name += " - true";
@@ -213,7 +213,7 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 		for(MccBranchPair bp : obligation){
 			for(MccBranchPair bp2: otherobligation){
 				if(bp.getBranch() !=null && bp2.getBranch() !=null){
-					if(bp.getBranch().equals(bp2.getBranch()) && bp.getConditionStatus() == bp2.getConditionStatus()){
+					if(bp.getBranchName().equals(bp2.getBranchName()) && bp.getConditionStatus() == bp2.getConditionStatus()){
 						count++;
 					}
 				}
