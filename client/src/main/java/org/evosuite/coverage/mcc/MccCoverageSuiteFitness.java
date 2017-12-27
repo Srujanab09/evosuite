@@ -3,6 +3,7 @@ package org.evosuite.coverage.mcc;
 
 import org.evosuite.TestGenerationContext;
 import org.evosuite.testcase.ExecutableChromosome;
+import org.evosuite.testcase.TestChromosome;
 import org.evosuite.testcase.execution.ExecutionResult;
 import org.evosuite.testsuite.AbstractTestSuiteChromosome;
 import org.evosuite.testsuite.TestSuiteFitnessFunction;
@@ -72,10 +73,20 @@ public class MccCoverageSuiteFitness extends TestSuiteFitnessFunction {
 					coveredObligations.add(goal);
 					break;
 				}
+				else {
+					
+					TestChromosome chromosome = new TestChromosome();
+					chromosome.setTestCase(result.test);
+					chromosome.setLastExecutionResult(result);
+					chromosome.setChanged(false);
+					
+					fitness = fitness + goal.getFitness(chromosome, result);
+				}
+					
 			}
 		}
 		
-		fitness = listOfTestFitnessValues.size() - coveredObligations.size();
+		//fitness = listOfTestFitnessValues.size() - coveredObligations.size();
 
 		for (ExecutionResult result : results) {
 			if (result.hasTimeout() || result.hasTestException()) {
