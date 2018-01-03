@@ -69,6 +69,7 @@ public class MccCoverageSuiteFitness extends TestSuiteFitnessFunction {
 		
 		for(MccCoverageTestFitness goal: listOfTestFitnessValues){
 			for(ExecutionResult result: results){
+				
 				if(goal.isCovered(result)){
 					coveredObligations.add(goal);
 					break;
