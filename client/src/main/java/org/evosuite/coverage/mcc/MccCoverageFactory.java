@@ -67,11 +67,12 @@ public class MccCoverageFactory extends
                 		for(String methodName1 : mccTestObligations.keySet()) {
                 			CopyOnWriteArrayList<CopyOnWriteArrayList<MccBranchPair>> obligationsForMethod = mccTestObligations.get(methodName1);
                 			for(CopyOnWriteArrayList<MccBranchPair> obligation : obligationsForMethod) {
-                				if(!goals.contains(createMccCoverageTestFitness(obligation))){
-            						goals.add(createMccCoverageTestFitness(obligation));
-                				}
                 				
-                			}
+                					if(!goals.contains(createMccCoverageTestFitness(obligation))){
+                				    		   goals.add(createMccCoverageTestFitness(obligation));
+                					}
+                				
+                			} 		
                 		}
 			}
 		}
@@ -83,7 +84,11 @@ public class MccCoverageFactory extends
 	public static MccCoverageTestFitness createMccCoverageTestFitness(
 			CopyOnWriteArrayList<MccBranchPair> obligation ) {
 		
+	//	System.out.println("printing obligation : "+obligation.toString());
+		
 		for(MccBranchPair bp : obligation) {
+		
+
 			return new MccCoverageTestFitness(new MccCoverageGoal(obligation,
 					bp.getBranch().getClassName(), bp.getBranch().getMethodName()));
 		}
@@ -92,7 +97,7 @@ public class MccCoverageFactory extends
 		return null;
 	}
 
-	public static void storeInstrcutionForMCC(String ClassName, String methodName, BytecodeInstruction instruction, String inst, ClassLoader classLoader) {
+	public static void storeInstructionForMCC(String ClassName, String methodName, BytecodeInstruction instruction, String inst, ClassLoader classLoader) {
 		synchronized (instruction) {
 				if(MccCoverageFactory.mccInsts.containsKey(methodName)) {
 					MccCoverageFactory.mccInsts.get(methodName).add(inst);
@@ -180,9 +185,11 @@ public class MccCoverageFactory extends
 					
 					// start with (first branch - true) &  (first branch - false) obligation
 					MccBranchPair fstFalseBranch = new MccBranchPair();
+					
 					fstFalseBranch.setBranchName(mccBranchListForNextSetOfObligations.get(0).getBranchName());
-					fstTrueBranch.setBranch(mccBranchListForNextSetOfObligations.get(0).getBranch());
+					fstFalseBranch.setBranch(mccBranchListForNextSetOfObligations.get(0).getBranch());
 					fstFalseBranch.setConditionStatus(0); // 0 == false
+					
 					
 					CopyOnWriteArrayList<MccBranchPair> trBranchPairList = new CopyOnWriteArrayList<MccBranchPair>();
 					trBranchPairList.add(fstTrueBranch);
@@ -202,9 +209,8 @@ public class MccCoverageFactory extends
 					obligations.addAll(temp_obligations);
 				}
 				if(!MccCoverageFactory.mccTestObligations.containsValue(obligations)){
-				MccCoverageFactory.mccTestObligations.put(methodName, obligations);
-	
-			//	printObligations();
+						MccCoverageFactory.mccTestObligations.put(methodName, obligations);
+					//	printObligations();
 				}
 
 			}
@@ -218,6 +224,8 @@ public class MccCoverageFactory extends
 		
 		for(MccBranchInfo bInfo : mccBranchInfoList) {
 			Branch b = bInfo.getBranch();
+			if(b == null)
+			    break;
 			String branchName = bInfo.getBranchName();
 			String trueLabel = bInfo.getLabelForTrue();
 			String falseLabel = bInfo.getLabelForFalse();
@@ -582,8 +590,10 @@ public class MccCoverageFactory extends
 						status = "false";
 					else
 						status = "true";
-					System.out.print(" :: "+bp.getBranchName()+"-"+status);
-					
+			//		System.out.print(" :: "+bp.getBranchName()+"-"+status);
+				//	System.out.print(" :: "+bp.getBranch());
+
+					System.out.print(" :: "+bp.getBranchName()+ " --> "+bp.getBranch()+"-"+status);
 				}
 				System.out.println("\n------------------------------------");
 			}
