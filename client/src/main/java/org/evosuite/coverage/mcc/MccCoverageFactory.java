@@ -78,6 +78,13 @@ public class MccCoverageFactory extends
 		}
 		
 		goalComputationTime = System.currentTimeMillis() - start;
+		
+		  // int count = goals.size();
+		//   for(int i=0; i< count;i++){
+		//	   System.out.println(goals.get(i));
+		 //  }
+		   
+		
 			return goals;
 	}
 
@@ -99,6 +106,8 @@ public class MccCoverageFactory extends
 
 	public static void storeInstructionForMCC(String ClassName, String methodName, BytecodeInstruction instruction, String inst, ClassLoader classLoader) {
 		synchronized (instruction) {
+		//	System.out.println(inst);
+		//	System.out.println("Printing Class Name: "+ClassName);
 				if(MccCoverageFactory.mccInsts.containsKey(methodName)) {
 					MccCoverageFactory.mccInsts.get(methodName).add(inst);
 					if(BranchPool.getInstance(classLoader).isKnownAsBranch(instruction)){
@@ -124,6 +133,7 @@ public class MccCoverageFactory extends
 		//	System.out.println("----processMccInstrcution:::"+counter++);
 		// Get the method level branch info for MCC: MccBranchInfo
 		for(String methodName : mccInsts.keySet()) {
+		//	System.out.println("printing methid name : "+methodName);
 			ArrayList<String> instsForMethod = mccInsts.get(methodName);
 			//System.out.println("----Mcc Method Name:::"+methodName);
 			ArrayList<MccBranchInfo> list =  getMccBranchInfoList(methodName, instsForMethod);
@@ -131,8 +141,8 @@ public class MccCoverageFactory extends
 			
 			// Get the Test obligations for MCC: MccTruthTable
 			ArrayList<MccBranch> mccBranchList = getMccBranchList(list);
-			if(mccBranchList != null & mccBranchList.size() > 1) {
-				
+			if(mccBranchList != null & mccBranchList.size() >= 1) {
+	
 				MccBranchPair firstTrueBranch = new MccBranchPair();
 				firstTrueBranch.setBranchName(mccBranchList.get(0).getBranchName());
 				firstTrueBranch.setBranch(mccBranchList.get(0).getBranch());
@@ -593,7 +603,7 @@ public class MccCoverageFactory extends
 			//		System.out.print(" :: "+bp.getBranchName()+"-"+status);
 				//	System.out.print(" :: "+bp.getBranch());
 
-					System.out.print(" :: "+bp.getBranchName()+ " --> "+bp.getBranch()+"-"+status);
+					System.out.print(" :: "+bp.getBranchName()+ "-"+status);
 				}
 				System.out.println("\n------------------------------------");
 			}
