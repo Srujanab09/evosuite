@@ -120,7 +120,7 @@ public class BytecodeInstructionPool {
 				inst = instruction.toString();
 			}
 			
-			
+		//	System.out.println(instruction);
 
 			if (instruction.isLineNumber())
 				lastLineNumber = instruction.getLineNumber();
@@ -137,7 +137,7 @@ public class BytecodeInstructionPool {
 
 			registerInstruction(instruction);
 			if(mccflag)
-				MccCoverageFactory.storeInstrcutionForMCC(className, methodName, instruction, inst, classLoader);
+				MccCoverageFactory.storeInstructionForMCC(className, methodName, instruction, inst, classLoader);
 			
 				//MccCoverageFactory.storeInstrcutionForMCC(methodName,instruction, instructionCopy, classLoader);
 
