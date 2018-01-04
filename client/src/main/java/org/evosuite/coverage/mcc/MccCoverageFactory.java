@@ -65,26 +65,28 @@ public class MccCoverageFactory extends
 					continue;
 				}
                 		for(String methodName1 : mccTestObligations.keySet()) {
-                			CopyOnWriteArrayList<CopyOnWriteArrayList<MccBranchPair>> obligationsForMethod = mccTestObligations.get(methodName1);
-                			for(CopyOnWriteArrayList<MccBranchPair> obligation : obligationsForMethod) {
-                				
-                					if(!goals.contains(createMccCoverageTestFitness(obligation))){
+                			 if(methodName.equals(methodName1)){
+                				 CopyOnWriteArrayList<CopyOnWriteArrayList<MccBranchPair>> obligationsForMethod = mccTestObligations.get(methodName1);
+                				 for(CopyOnWriteArrayList<MccBranchPair> obligation : obligationsForMethod) {
+                					// if(!goals.contains(createMccCoverageTestFitness(obligation))){
                 				    		   goals.add(createMccCoverageTestFitness(obligation));
-                					}
+                					//}
                 				
-                			} 		
-                		}
+                				 } 		
+                			 }
+                		}		 
 			}
 		}
 		
 		goalComputationTime = System.currentTimeMillis() - start;
-		
-		  // int count = goals.size();
-		//   for(int i=0; i< count;i++){
-		//	   System.out.println(goals.get(i));
-		 //  }
-		   
-		
+		/*
+		   int count = goals.size();
+		   System.out.println("---One set----");
+		   for(int i=0; i< count;i++){
+			   System.out.println(goals.get(i));
+		   }
+		   System.out.println("---One set End----");
+		*/
 			return goals;
 	}
 
