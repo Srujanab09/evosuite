@@ -79,15 +79,15 @@ public class MccCoverageFactory extends
 		}
 		
 		goalComputationTime = System.currentTimeMillis() - start;
-		/*
-		   int count = goals.size();
-		   System.out.println("---One set----");
-		   for(int i=0; i< count;i++){
-			   System.out.println(goals.get(i));
-		   }
-		   System.out.println("---One set End----");
-		*/
-			return goals;
+		
+		 //  int count = goals.size();
+		  // System.out.println("---One set----");
+		   //for(int i=0; i< count;i++){
+			//   System.out.println(goals.get(i));
+		   //}
+		   //System.out.println("---One set End----");
+		
+		   return goals;
 	}
 
 	public static MccCoverageTestFitness createMccCoverageTestFitness(
@@ -111,8 +111,11 @@ public class MccCoverageFactory extends
 		//	System.out.println(inst);
 		//	System.out.println("Printing Class Name: "+ClassName);
 				if(MccCoverageFactory.mccInsts.containsKey(methodName)) {
+				
 					MccCoverageFactory.mccInsts.get(methodName).add(inst);
+					
 					if(BranchPool.getInstance(classLoader).isKnownAsBranch(instruction)){
+					//	System.out.println(inst);
 						Branch b = BranchPool.getInstance(classLoader).getBranchForInstruction(instruction);
 						MccCoverageFactory.mccInstruction.put(inst, b);
 					}
@@ -122,6 +125,7 @@ public class MccCoverageFactory extends
 					temp.add(inst);
 					MccCoverageFactory.mccInsts.put(methodName, temp);
 					if(BranchPool.getInstance(classLoader).isKnownAsBranch(instruction)){
+					//	System.out.println(inst);
 						Branch b = BranchPool.getInstance(classLoader).getBranchForInstruction(instruction);
 						MccCoverageFactory.mccInstruction.put(inst, b);
 					}
@@ -138,6 +142,10 @@ public class MccCoverageFactory extends
 		//	System.out.println("printing methid name : "+methodName);
 			ArrayList<String> instsForMethod = mccInsts.get(methodName);
 			//System.out.println("----Mcc Method Name:::"+methodName);
+			//for(String in: instsForMethod ){
+			//	System.out.println(in);
+		//	}
+			
 			ArrayList<MccBranchInfo> list =  getMccBranchInfoList(methodName, instsForMethod);
 			mccBranchInfoMap.put(methodName, list);
 			
@@ -280,7 +288,7 @@ public class MccCoverageFactory extends
 		
 		for(String inst : instsForMethod) {
 			// check for the branch inst first
-			if(isBranchInst(inst)) {
+			if(mccInstruction.containsKey(inst)) {
 				
 				Branch b = mccInstruction.get(inst);
 				
@@ -334,15 +342,34 @@ public class MccCoverageFactory extends
 		else if(inst.contains("Branch") && inst.substring(inst.indexOf("Branch")).contains("IFLE")) {
 			result = inst.substring(inst.indexOf("Branch"), inst.indexOf("IFLE"));
 		}
+		else if(inst.contains("Branch") && inst.substring(inst.indexOf("Branch")).contains("IFLT")){
+			result = inst.substring(inst.indexOf("Branch"), inst.indexOf("IFLT"));
+		}
+		else if(inst.contains("Branch") && inst.substring(inst.indexOf("Branch")).contains("IFNE")) {
+			result = inst.substring(inst.indexOf("Branch"), inst.indexOf("IFNE"));
+		}
+		else if(inst.contains("Branch") && inst.substring(inst.indexOf("Branch")).contains("IFEQ")) {
+			result = inst.substring(inst.indexOf("Branch"), inst.indexOf("IFEQ"));
+		}
 		else if(inst.contains("Branch") && inst.substring(inst.indexOf("Branch")).contains("ICMPGT")){
 			result = inst.substring(inst.indexOf("Branch"), inst.indexOf("ICMPGT"));
+		}
+		else if(inst.contains("Branch") && inst.substring(inst.indexOf("Branch")).contains("ICMPGE")){
+			result = inst.substring(inst.indexOf("Branch"), inst.indexOf("ICMPGE"));
 		}
 		else if(inst.contains("Branch") && inst.substring(inst.indexOf("Branch")).contains("ICMPLT")){
 			result = inst.substring(inst.indexOf("Branch"), inst.indexOf("ICMPLT"));
 		}
-		else if(inst.contains("Branch") && inst.substring(inst.indexOf("Branch")).contains("IFLT")){
-			result = inst.substring(inst.indexOf("Branch"), inst.indexOf("IFLT"));
+		else if(inst.contains("Branch") && inst.substring(inst.indexOf("Branch")).contains("ICMPLE")){
+			result = inst.substring(inst.indexOf("Branch"), inst.indexOf("ICMPLE"));
 		}
+		else if(inst.contains("Branch") && inst.substring(inst.indexOf("Branch")).contains("ICMPNE")){
+			result = inst.substring(inst.indexOf("Branch"), inst.indexOf("ICMPNE"));
+		}
+		else if(inst.contains("Branch") && inst.substring(inst.indexOf("Branch")).contains("ICMPEQ")){
+			result = inst.substring(inst.indexOf("Branch"), inst.indexOf("ICMPEQ"));
+		}
+		
 		else {
 			System.out.println("In MCC coverage: Wrong instruction for branchName...:"+inst);
 		}

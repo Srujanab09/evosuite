@@ -85,6 +85,15 @@ public class BranchCoverageFactory extends
 			}
 		}
 		goalComputationTime = System.currentTimeMillis() - start;
+		
+
+		   int count = goals.size();
+		   System.out.println("---One set----");
+		   for(int i=0; i< count;i++){
+			   System.out.println(goals.get(i));
+		   }
+		   System.out.println("---One set End----");
+		   
 		return goals;
 	}
 	
