@@ -80,12 +80,12 @@ public class MccCoverageFactory extends
 		
 		goalComputationTime = System.currentTimeMillis() - start;
 		
-		 //  int count = goals.size();
-		  // System.out.println("---One set----");
-		   //for(int i=0; i< count;i++){
-			//   System.out.println(goals.get(i));
-		   //}
-		   //System.out.println("---One set End----");
+		   int count = goals.size();
+		   System.out.println("---One set----");
+		   for(int i=0; i< count;i++){
+			   System.out.println(goals.get(i));
+		   }
+		   System.out.println("---One set End----");
 		
 		   return goals;
 	}
@@ -115,7 +115,7 @@ public class MccCoverageFactory extends
 					MccCoverageFactory.mccInsts.get(methodName).add(inst);
 					
 					if(BranchPool.getInstance(classLoader).isKnownAsBranch(instruction)){
-					//	System.out.println(inst);
+						System.out.println(inst);
 						Branch b = BranchPool.getInstance(classLoader).getBranchForInstruction(instruction);
 						MccCoverageFactory.mccInstruction.put(inst, b);
 					}
@@ -125,7 +125,7 @@ public class MccCoverageFactory extends
 					temp.add(inst);
 					MccCoverageFactory.mccInsts.put(methodName, temp);
 					if(BranchPool.getInstance(classLoader).isKnownAsBranch(instruction)){
-					//	System.out.println(inst);
+						System.out.println(inst);
 						Branch b = BranchPool.getInstance(classLoader).getBranchForInstruction(instruction);
 						MccCoverageFactory.mccInstruction.put(inst, b);
 					}
@@ -368,6 +368,12 @@ public class MccCoverageFactory extends
 		}
 		else if(inst.contains("Branch") && inst.substring(inst.indexOf("Branch")).contains("ICMPEQ")){
 			result = inst.substring(inst.indexOf("Branch"), inst.indexOf("ICMPEQ"));
+		}
+		else if(inst.contains("Branch") && inst.substring(inst.indexOf("Branch")).contains("IFNULL")){
+			result = inst.substring(inst.indexOf("Branch"), inst.indexOf("IFNULL"));
+		}
+		else if(inst.contains("Branch") && inst.substring(inst.indexOf("Branch")).contains("IFNONNULL")){
+			result = inst.substring(inst.indexOf("Branch"), inst.indexOf("IFNONNULL"));
 		}
 		
 		else {
