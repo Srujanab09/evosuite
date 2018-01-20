@@ -3,7 +3,9 @@ package org.evosuite.coverage.mcc;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.concurrent.CopyOnWriteArrayList;
 
 import org.evosuite.Properties;
@@ -37,7 +39,7 @@ public class MccCoverageFactory extends
 	// for testing but worked and using it
 	static HashMap<String, Branch> branchNameMap = new HashMap<String, Branch>();
 	
-	public static HashMap<String, ArrayList<MccBranchInfo>> mccBranchInfoMap = new HashMap<String, ArrayList<MccBranchInfo>>();
+//	public static HashMap<String, ArrayList<MccBranchInfo>> mccBranchInfoMap = new HashMap<String, ArrayList<MccBranchInfo>>();
 	
 	public static HashMap<String, CopyOnWriteArrayList<CopyOnWriteArrayList<MccBranchPair>>> mccTestObligations = new HashMap<String, CopyOnWriteArrayList<CopyOnWriteArrayList<MccBranchPair>>>();
 	
@@ -108,7 +110,7 @@ public class MccCoverageFactory extends
 
 	public static void storeInstructionForMCC(String ClassName, String methodName, BytecodeInstruction instruction, String inst, ClassLoader classLoader) {
 		synchronized (instruction) {
-		//	System.out.println(inst);
+		//	System.out.println(instruction.toString());
 		//	System.out.println("Printing Class Name: "+ClassName);
 				if(MccCoverageFactory.mccInsts.containsKey(methodName)) {
 				
@@ -136,21 +138,22 @@ public class MccCoverageFactory extends
 	//private static int counter = 0;
 	
 	public static void processMccInstrcution() {
-		//	System.out.println("----processMccInstrcution:::"+counter++);
 		// Get the method level branch info for MCC: MccBranchInfo
 		for(String methodName : mccInsts.keySet()) {
-		//	System.out.println("printing methid name : "+methodName);
+
 			ArrayList<String> instsForMethod = mccInsts.get(methodName);
-			//System.out.println("----Mcc Method Name:::"+methodName);
-			//for(String in: instsForMethod ){
-			//	System.out.println(in);
-		//	}
+
+			/*	System.out.println("----Mcc Method Name:::"+methodName);
+			for(String in: instsForMethod ){
+				System.out.println(in);
+			}*/
 			
 			ArrayList<MccBranchInfo> list =  getMccBranchInfoList(methodName, instsForMethod);
-			mccBranchInfoMap.put(methodName, list);
+		//	mccBranchInfoMap.put(methodName, list);
 			
 			// Get the Test obligations for MCC: MccTruthTable
 			ArrayList<MccBranch> mccBranchList = getMccBranchList(list);
+			
 			if(mccBranchList != null & mccBranchList.size() >= 1) {
 	
 				MccBranchPair firstTrueBranch = new MccBranchPair();
@@ -230,7 +233,7 @@ public class MccCoverageFactory extends
 				}
 				if(!MccCoverageFactory.mccTestObligations.containsValue(obligations)){
 						MccCoverageFactory.mccTestObligations.put(methodName, obligations);
-					//	printObligations();
+						printObligations();
 				}
 
 			}
@@ -241,6 +244,8 @@ public class MccCoverageFactory extends
 	
 	private static ArrayList<MccBranch> getMccBranchList(ArrayList<MccBranchInfo> mccBranchInfoList) {
 		ArrayList<MccBranch> result = new ArrayList<MccBranch>();
+		Set<MccBranchInfo>  trueTempSet = new HashSet<MccBranchInfo>();
+		Set<MccBranchInfo>  falseTempSet = new HashSet<MccBranchInfo>();
 		
 		for(MccBranchInfo bInfo : mccBranchInfoList) {
 			Branch b = bInfo.getBranch();
@@ -256,8 +261,9 @@ public class MccCoverageFactory extends
 			
 			for(MccBranchInfo temp : mccBranchInfoList) {
 				if(temp.getBranchName() != branchName) {
-					if(trueLabel!=null && trueLabel.equals(temp.getLabelForWhere())) {
+					if(!trueTempSet.contains(temp) && trueLabel!=null && trueLabel.equals(temp.getLabelForWhere())) {
 						mccBranch.setTrueBranch(temp.getBranchName());
+						trueTempSet.add(bInfo);
 						break;
 					}
 					else {
@@ -268,8 +274,9 @@ public class MccCoverageFactory extends
 			
 			for(MccBranchInfo temp : mccBranchInfoList) {
 				if(temp.getBranchName() != branchName) {
-					if(falseLabel.equals(temp.getLabelForWhere())) {
+					if( !falseTempSet.contains(temp) && falseLabel !=null && falseLabel.equals(temp.getLabelForWhere())) {
 						mccBranch.setFalseBranch(temp.getBranchName());
+						falseTempSet.add(bInfo);
 						break;
 					}
 					else {
