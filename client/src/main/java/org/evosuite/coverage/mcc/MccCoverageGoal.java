@@ -53,18 +53,22 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 		this.className = className;
 		this.methodName = methodName;
 		
+		
+	//	System.out.println("---Start=---");
 		for(MccBranchPair bp : obligation) {
 
 			lineNumber = bp.getBranch().getInstruction().getLineNumber();
 			
-			//System.out.println(" 1. "+ methodName +" "+ "2. "+bp.getBranch().getMethodName());
+	//		System.out.println("Branch : "+ bp.getBranchName() +" Method Name: " +bp.getBranch().getMethodName() + "Line Number: "+ lineNumber );
+
+		//  System.out.println(" 1. "+ methodName +" "+ "2. "+bp.getBranch().getMethodName());
 			
-			if (!bp.getBranch().getMethodName().equals(methodName)
+			/*if (!bp.getBranch().getMethodName().equals(methodName)
 			        || !bp.getBranch().getClassName().equals(className))
 				throw new IllegalArgumentException(
-				        "expect explicitly given information about a branch to coincide with the information given by that branch");
+				        "expect explicitly given information about a branch to coincide with the information given by that branch");*/
 		}
-		
+	//	System.out.println("---end=---");
 	}
 
 
@@ -115,7 +119,7 @@ public class MccCoverageGoal implements Serializable, Comparable<MccCoverageGoal
 				status = true;
 
 			ControlFlowDistance r = ControlFlowDistanceCalculator.getDistance(result, bp.getBranch(), status,
-					className, methodName);
+					className, bp.getBranch().getMethodName());
 			
 			obligationdistance.put(bp.getBranch().getActualBranchId(), r);
 			
