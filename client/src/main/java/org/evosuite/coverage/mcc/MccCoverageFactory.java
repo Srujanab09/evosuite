@@ -233,7 +233,7 @@ public class MccCoverageFactory extends
 				}
 				if(!MccCoverageFactory.mccTestObligations.containsValue(obligations)){
 						MccCoverageFactory.mccTestObligations.put(methodName, obligations);
-						printObligations();
+					//	printObligations();
 				}
 
 			}
