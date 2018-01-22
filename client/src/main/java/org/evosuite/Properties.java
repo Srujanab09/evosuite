@@ -592,7 +592,7 @@ public class Properties {
 	/** Constant <code>SEARCH_BUDGET=60</code> */
 	@Parameter(key = "search_budget", group = "Search Algorithm", description = "Maximum search duration")
 	@LongValue(min = 1)
-	public static long SEARCH_BUDGET = 60;
+	public static long SEARCH_BUDGET = 480;
 
 	/** Constant <code>OUTPUT_DIR="evosuite-files"</code> */
 	@Parameter(key = "OUTPUT_DIR", group = "Runtime", description = "Directory in which to put generated files")
