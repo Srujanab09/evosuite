@@ -81,8 +81,8 @@ public class MccCoverageFactory extends
 		}
 		
 		goalComputationTime = System.currentTimeMillis() - start;
-/*		
-		   int count = goals.size();
+		
+/*		   int count = goals.size();
 		   System.out.println("---One set----");
 		   for(int i=0; i< count;i++){
 			   System.out.println(goals.get(i));
@@ -119,7 +119,8 @@ public class MccCoverageFactory extends
 					if(BranchPool.getInstance(classLoader).isKnownAsBranch(instruction)){
 			//			System.out.println(inst);
 						Branch b = BranchPool.getInstance(classLoader).getBranchForInstruction(instruction);
-						MccCoverageFactory.mccInstruction.put(inst, b);
+						if(b.getActualBranchId() != 0)
+							MccCoverageFactory.mccInstruction.put(inst, b);
 					}
 				}
 				else {
@@ -129,7 +130,8 @@ public class MccCoverageFactory extends
 					if(BranchPool.getInstance(classLoader).isKnownAsBranch(instruction)){
 				//		System.out.println(inst);
 						Branch b = BranchPool.getInstance(classLoader).getBranchForInstruction(instruction);
-						MccCoverageFactory.mccInstruction.put(inst, b);
+						if(b.getActualBranchId() != 0)
+							MccCoverageFactory.mccInstruction.put(inst, b);
 					}
 				}
 		}
@@ -143,10 +145,10 @@ public class MccCoverageFactory extends
 
 			ArrayList<String> instsForMethod = mccInsts.get(methodName);
 
-			/*	System.out.println("----Mcc Method Name:::"+methodName);
-			for(String in: instsForMethod ){
-				System.out.println(in);
-			}*/
+				/*System.out.println("----Mcc Method Name:::"+methodName);
+				for(String in: instsForMethod ){
+					System.out.println(in);
+				}*/
 			
 			ArrayList<MccBranchInfo> list =  getMccBranchInfoList(methodName, instsForMethod);
 		//	mccBranchInfoMap.put(methodName, list);
@@ -233,7 +235,7 @@ public class MccCoverageFactory extends
 				}
 				if(!MccCoverageFactory.mccTestObligations.containsValue(obligations)){
 						MccCoverageFactory.mccTestObligations.put(methodName, obligations);
-					//	printObligations();
+						//printObligations();
 				}
 
 			}
@@ -292,7 +294,7 @@ public class MccCoverageFactory extends
 	
 	private static ArrayList<MccBranchInfo> getMccBranchInfoList(String methodName, ArrayList<String> instsForMethod) {
 		ArrayList<MccBranchInfo> result = new ArrayList<MccBranchInfo>();
-		
+		//System.out.println("=====Method Name=== " + methodName);
 		for(String inst : instsForMethod) {
 			// check for the branch inst first
 			if(mccInstruction.containsKey(inst)) {
@@ -307,16 +309,18 @@ public class MccCoverageFactory extends
 				mccBranchInfo.setBranch(b);
 				
 				
-				//System.out.println("----branchName:::"+branchName);
+			//	System.out.println("----branchName:::"+branchName);
 				
 				// get the label for where
 				String labelForWhere = getLabelforWhere(instsForMethod, index);
 				mccBranchInfo.setLabelForWhere(labelForWhere);
+			//	System.out.println("----labelForWhere:::"+labelForWhere);
+
 				
 				// get the label for true
 				String labelForTrue = getlabelForTrue(inst);
 				mccBranchInfo.setLabelForTrue(labelForTrue);
-				//System.out.println("----labelForTrue:::"+labelForTrue);
+			//	System.out.println("----labelForTrue:::"+labelForTrue);
 				
 				// get the lable for false 
 				String labelForFalse = getLabelForFalse(instsForMethod, index);
@@ -556,7 +560,7 @@ public class MccCoverageFactory extends
 				}
 				else if(status == 1) { //true  = so look for true branch in mccBranchList
 					if(!b.getTrueBranch().equals("NA")){
-						branchNameMap.put(b.getFalseBranch(), b.getBranch());
+						branchNameMap.put(b.getTrueBranch(), b.getBranch());
 						return b.getTrueBranch();
 					}
 					else
