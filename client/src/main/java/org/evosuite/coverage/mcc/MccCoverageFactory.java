@@ -82,7 +82,7 @@ public class MccCoverageFactory extends
 		
 		goalComputationTime = System.currentTimeMillis() - start;
 		
-/*		   int count = goals.size();
+			/*	   int count = goals.size();
 		   System.out.println("---One set----");
 		   for(int i=0; i< count;i++){
 			   System.out.println(goals.get(i));
@@ -110,7 +110,7 @@ public class MccCoverageFactory extends
 
 	public static void storeInstructionForMCC(String ClassName, String methodName, BytecodeInstruction instruction, String inst, ClassLoader classLoader) {
 		synchronized (instruction) {
-		//	System.out.println(instruction.toString());
+		//	System.out.println(instruction.toString()+ +instruction.getLineNumber());
 		//	System.out.println("Printing Class Name: "+ClassName);
 				if(MccCoverageFactory.mccInsts.containsKey(methodName)) {
 				
@@ -140,12 +140,13 @@ public class MccCoverageFactory extends
 	//private static int counter = 0;
 	
 	public static void processMccInstrcution() {
+		
 		// Get the method level branch info for MCC: MccBranchInfo
 		for(String methodName : mccInsts.keySet()) {
 
 			ArrayList<String> instsForMethod = mccInsts.get(methodName);
 
-				/*System.out.println("----Mcc Method Name:::"+methodName);
+			/*	System.out.println("----Mcc Method Name:::"+methodName);
 				for(String in: instsForMethod ){
 					System.out.println(in);
 				}*/

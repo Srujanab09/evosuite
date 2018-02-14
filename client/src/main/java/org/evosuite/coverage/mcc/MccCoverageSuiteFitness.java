@@ -91,7 +91,7 @@ public class MccCoverageSuiteFitness extends TestSuiteFitnessFunction {
 
 		for (ExecutionResult result : results) {
 			if (result.hasTimeout() || result.hasTestException()) {
-				fitness = listOfTestFitnessValues.size();
+				fitness = listOfTestFitnessValues.size()*1000;
 				break;
 			}
 		}
